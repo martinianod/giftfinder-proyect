@@ -1,17 +1,118 @@
+"""
+MercadoLibre scraper with async support, rate limiting, and error handling.
+"""
+
+import asyncio
 import json
+import logging
 import uuid
-import requests
-import time
+from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
+import httpx
 from app.cache import cache_get, cache_set
 from app.ai_local import run_llm_json
+from app.validation import sanitize_keyword, validate_ml_url
+from app.config import get_settings
+
+
+logger = logging.getLogger(__name__)
+settings = get_settings()
+
+
+# Global semaphore for concurrency control
+_scraping_semaphore: Optional[asyncio.Semaphore] = None
+
+
+def get_semaphore() -> asyncio.Semaphore:
+    """
+    Get or create the global scraping semaphore.
+    
+    Returns:
+        Semaphore for controlling concurrent scrapes
+    """
+    global _scraping_semaphore
+    if _scraping_semaphore is None:
+        _scraping_semaphore = asyncio.Semaphore(settings.max_concurrent_scrapes)
+    return _scraping_semaphore
+
+
+def _extract_product(item, interests: List[str]) -> Optional[dict]:
+    """
+    Extract product data from a BeautifulSoup item.
+    
+    Args:
+        item: BeautifulSoup item element
+        interests: List of user interests for tagging
+        
+    Returns:
+        Product dict or None if extraction fails
+    """
+    try:
+        title_el = item.select_one("h2.ui-search-item__title")
+        price_el = item.select_one("span.andes-money-amount__fraction")
+        image_el = item.select_one("img")
+        link_el = item.select_one("a")
+        
+        # Extract fields
+        title = title_el.text.strip() if title_el else None
+        image_url = image_el.get("src") if image_el else None
+        product_url = link_el.get("href") if link_el else None
+        
+        # Validate required fields
+        if not title or not product_url:
+            return None
+        
+        # Validate product URL
+        if not validate_ml_url(product_url):
+            logger.warning(f"Invalid product URL: {product_url}")
+            return None
+        
+        # Parse price (handle Argentine format: "12.345" -> 12345.0)
+        price = None
+        if price_el:
+            try:
+                price_raw = price_el.text.strip().replace(".", "").replace(",", ".")
+                price = float(price_raw)
+            except (ValueError, AttributeError) as e:
+                logger.debug(f"Could not parse price: {e}")
+        
+        return {
+            "id": str(uuid.uuid4()),
+            "title": title,
+            "price": price,
+            "image_url": image_url,
+            "product_url": product_url,
+            "rating": None,
+            "currency": "ARS",
+            "store": "MercadoLibre",
+            "tags": interests or []
+        }
+        
+    except Exception as e:
+        logger.warning(f"Error extracting product: {e}")
+        return None
 
 
 # ============================================================
-# 🔥 SCRAPER PRINCIPAL
+# 🔥 ASYNC SCRAPER
 # ============================================================
-
-def scrape_mercadolibre(keyword: str, interests):
+async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[dict]:
+    """
+    Asynchronously scrape MercadoLibre with rate limiting and caching.
+    
+    Args:
+        keyword: Search keyword
+        interests: List of user interests
+        
+    Returns:
+        List of product dictionaries
+    """
+    # Sanitize keyword
+    keyword = sanitize_keyword(keyword)
+    if not keyword:
+        logger.warning("Empty keyword after sanitization")
+        return []
+    
     cache_key = f"ml::{keyword}"
 
     # -------------------------
@@ -19,159 +120,160 @@ def scrape_mercadolibre(keyword: str, interests):
     # -------------------------
     cached = cache_get(cache_key)
     if cached:
-        print(f"⚡ CACHE HIT for {keyword}")
+        logger.info(f"Cache hit for keyword: {keyword}")
         return cached
+    
+    # Acquire semaphore to limit concurrent scrapes
+    async with get_semaphore():
+        logger.info(f"Starting scrape for keyword: {keyword}")
+        
+        # Construct URL
+        url = f"https://listado.mercadolibre.com.ar/{keyword}"
+        
+        # Validate URL before making request
+        if not validate_ml_url(url):
+            logger.error(f"Invalid URL constructed: {url}")
+            return []
+        
+        # Rate limiting: wait 1 second between requests
+        await asyncio.sleep(1)
 
-    url = f"https://listado.mercadolibre.com.ar/{keyword}"
-    time.sleep(1)  # rate-limit suave
-
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        ),
-        "Accept-Language": "es-AR,es;q=0.9",
-        "Accept": (
-            "text/html,application/xhtml+xml,application/xml;"
-            "q=0.9,image/avif,image/webp,*/*;q=0.8"
-        ),
-        "Connection": "keep-alive",
-        "Referer": "https://www.mercadolibre.com.ar/",
-    }
-
-    try:
-        response = requests.get(url, headers=headers, timeout=12)
-    except Exception as e:
-        print("❌ Error request ML:", e)
-        return []
-
-    # ------------------------------------------------
-    # LOG BÁSICO DE RESPUESTA
-    # ------------------------------------------------
-    print(
-        f"🧾 ML response status={response.status_code} "
-        f"bytes={len(response.text)} url={url}"
-    )
-
-    if response.status_code != 200:
-        print(f"❌ ML respondió status {response.status_code}")
-        return []
-
-    html_lower = response.text.lower()
-
-    # ------------------------------------------------
-    # DETECCIÓN SIMPLE DE ANTIBOT / CAPTCHA
-    # ------------------------------------------------
-    block_signals = [
-        "captcha",
-        "robot",
-        "blocked",
-        "verificación",
-        "incidencia",
-        "challenge",
-    ]
-
-    if any(signal in html_lower for signal in block_signals):
-        print("🚫 ML parece estar bloqueando el scraping (captcha/antibot).")
-        print("🔍 HTML snippet:", response.text[:300].replace("\n", " "))
-        return []
-
-    soup = BeautifulSoup(response.text, "html.parser")
-    items = soup.select("li.ui-search-layout__item")
-
-    print(f"📦 Encontrados {len(items)} items en ML")
-
-    if not items:
-        print("⚠️ ML devolvió HTML válido pero sin items.")
-        print("🔍 HTML snippet:", response.text[:300].replace("\n", " "))
-        return []
-
-    # ============================================================
-    # 1) SCRAPER CLÁSICO + HTML PARA IA
-    # ============================================================
-    raw_products = []
-    items_html = []
-
-    for item in items[:20]:
-        title_el = item.select_one("h2.ui-search-item__title")
-        price_el = item.select_one("span.andes-money-amount__fraction")
-        image_el = item.select_one("img")
-        link_el = item.select_one("a")
-
-        title = title_el.text.strip() if title_el else None
-        price_raw = (
-            price_el.text.strip()
-            .replace(".", "")
-            .replace(",", ".")
-            if price_el else None
-        )
-
-        product = {
-            "title": title,
-            "price": float(price_raw) if price_raw else None,
-            "image_url": image_el.get("src") if image_el else None,
-            "product_url": link_el.get("href") if link_el else None,
-            "rating": None,
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            ),
+            "Accept-Language": "es-AR,es;q=0.9",
+            "Accept": (
+                "text/html,application/xhtml+xml,application/xml;"
+                "q=0.9,image/avif,image/webp,*/*;q=0.8"
+            ),
+            "Connection": "keep-alive",
+            "Referer": "https://www.mercadolibre.com.ar/",
         }
 
-        raw_products.append(product)
-        items_html.append(str(item)[:500])  # límite para LLMs chicos
+        try:
+            async with httpx.AsyncClient(timeout=settings.scraping_timeout_seconds) as client:
+                response = await client.get(url, headers=headers)
+                
+            # ------------------------------------------------
+            # LOG RESPONSE
+            # ------------------------------------------------
+            logger.info(
+                f"MercadoLibre response",
+                extra={
+                    'status_code': response.status_code,
+                    'content_length': len(response.text),
+                    'url': url
+                }
+            )
 
-    # ============================================================
-    # 2) 🔥 IA — UNA SOLA LLAMADA
-    # ============================================================
-    ai_results = clean_products_with_ai(items_html)
+            if response.status_code != 200:
+                logger.warning(f"MercadoLibre returned status {response.status_code}")
+                return []
 
-    print("\n====== DEBUG IA RAW ======")
-    print(ai_results)
-    print("====== END DEBUG ======\n")
+            html_lower = response.text.lower()
 
-    if not isinstance(ai_results, list):
-        print("⚠️ IA devolvió formato inválido. Ignorando IA.")
-        ai_results = [{} for _ in raw_products]
+            # ------------------------------------------------
+            # DETECCIÓN SIMPLE DE ANTIBOT / CAPTCHA
+            # ------------------------------------------------
+            block_signals = [
+                "captcha",
+                "robot",
+                "blocked",
+                "verificación",
+                "incidencia",
+                "challenge",
+            ]
 
-    while len(ai_results) < len(raw_products):
-        ai_results.append({})
+            if any(signal in html_lower for signal in block_signals):
+                logger.warning("MercadoLibre anti-bot detection triggered")
+                logger.debug(f"HTML snippet: {response.text[:300]}")
+                return []
 
-    # ============================================================
-    # 3) FUSIÓN SCRAPER + IA
-    # ============================================================
-    final_products = []
+            soup = BeautifulSoup(response.text, "html.parser")
+            items = soup.select("li.ui-search-layout__item")
 
-    for i, classic in enumerate(raw_products):
-        ai = ai_results[i] if i < len(ai_results) else {}
+            logger.info(f"Found {len(items)} items on MercadoLibre")
 
-        merged = {
-            "id": str(uuid.uuid4()),
-            "title": ai.get("title") or classic["title"],
-            "price": ai.get("price") or classic["price"],
-            "image_url": ai.get("image_url") or classic["image_url"],
-            "product_url": ai.get("product_url") or classic["product_url"],
-            "rating": ai.get("rating") or classic["rating"],
-            "currency": "ARS",
-            "store": "MercadoLibre",
-            "tags": interests or [],
-        }
+            if not items:
+                logger.warning("MercadoLibre returned valid HTML but no items")
+                logger.debug(f"HTML snippet: {response.text[:300]}")
+                return []
 
-        final_products.append(merged)
+            # ============================================================
+            # EXTRACT PRODUCTS
+            # ============================================================
+            final_products = []
+            
+            for item in items[:settings.max_products_per_scrape]:
+                product = _extract_product(item, interests)
+                if product:
+                    final_products.append(product)
 
-    # ============================================================
-    # LOG FINAL
-    # ============================================================
-    print("\n================ RESULTS ================")
-    print(json.dumps(final_products, indent=2, ensure_ascii=False))
-    print("========================================\n")
+            # ============================================================
+            # LOG RESULTS
+            # ============================================================
+            logger.info(
+                f"Scraping completed",
+                extra={
+                    'keyword': keyword,
+                    'product_count': len(final_products)
+                }
+            )
 
-    # ❗ cachear SOLO si hay resultados reales
-    if final_products:
-        cache_set(cache_key, final_products)
+            # ❗ cachear SOLO si hay resultados reales
+            if final_products:
+                cache_set(cache_key, final_products)
 
-    return final_products
+            return final_products
+            
+        except httpx.TimeoutException:
+            logger.error(f"Scraping timeout for keyword: {keyword}")
+            return []
+            
+        except httpx.RequestError as e:
+            logger.error(f"Scraping request error for keyword {keyword}: {e}")
+            return []
+            
+        except Exception as e:
+            logger.error(f"Unexpected scraping error for keyword {keyword}: {e}")
+            return []
 
 
 # ============================================================
-# 🔥 FUNCIÓN IA
+# SYNC WRAPPER FOR BACKWARD COMPATIBILITY
+# ============================================================
+def scrape_mercadolibre(keyword: str, interests: List[str]) -> List[dict]:
+    """
+    Synchronous wrapper for scrape_mercadolibre_async.
+    
+    Args:
+        keyword: Search keyword
+        interests: List of user interests
+        
+    Returns:
+        List of product dictionaries
+    """
+    try:
+        # Try to get existing event loop
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If loop is running, create a new one for this task
+            # This can happen in some async contexts
+            import nest_asyncio
+            nest_asyncio.apply()
+            return loop.run_until_complete(scrape_mercadolibre_async(keyword, interests))
+        else:
+            return loop.run_until_complete(scrape_mercadolibre_async(keyword, interests))
+    except RuntimeError:
+        # No event loop exists, create a new one
+        return asyncio.run(scrape_mercadolibre_async(keyword, interests))
+
+
+# ============================================================
+# 🔥 AI CLEANING FUNCTION (Legacy - not currently used)
 # ============================================================
 
 PRODUCT_PROMPT = """
@@ -200,6 +302,10 @@ HTML_LIST:
 
 
 def clean_products_with_ai(items_html):
+    """
+    Legacy function for AI-based product extraction.
+    Currently not used in main flow but kept for compatibility.
+    """
     prompt = PRODUCT_PROMPT.format(
         html_list=json.dumps(items_html, ensure_ascii=False)
     )
@@ -207,7 +313,7 @@ def clean_products_with_ai(items_html):
     result = run_llm_json(prompt)
 
     if isinstance(result, dict):
-        print("⚠️ IA devolvió dict en lugar de lista.")
+        logger.warning("AI returned dict instead of list")
         return []
 
     return result or []
