@@ -3,10 +3,11 @@ TTL-based caching with automatic eviction.
 """
 
 import logging
-from cachetools import TTLCache
 from typing import Any, Optional
-from app.config import get_settings
 
+from cachetools import TTLCache
+
+from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -14,18 +15,17 @@ settings = get_settings()
 
 # Global cache store with TTL and size limits
 _cache_store: TTLCache = TTLCache(
-    maxsize=settings.cache_max_size,
-    ttl=settings.cache_ttl_seconds
+    maxsize=settings.cache_max_size, ttl=settings.cache_ttl_seconds
 )
 
 
 def cache_get(key: str) -> Optional[Any]:
     """
     Get value from cache.
-    
+
     Args:
         key: Cache key
-        
+
     Returns:
         Cached value or None if not found or error
     """
@@ -42,7 +42,7 @@ def cache_get(key: str) -> Optional[Any]:
 def cache_set(key: str, value: Any, ttl: Optional[int] = None) -> None:
     """
     Set value in cache.
-    
+
     Args:
         key: Cache key
         value: Value to cache
@@ -67,7 +67,7 @@ def cache_clear() -> None:
 def cache_stats() -> dict:
     """
     Get cache statistics.
-    
+
     Returns:
         Dictionary with cache stats
     """
@@ -75,13 +75,12 @@ def cache_stats() -> dict:
         return {
             "current_size": len(_cache_store),
             "max_size": _cache_store.maxsize,
-            "ttl_seconds": _cache_store.ttl
+            "ttl_seconds": _cache_store.ttl,
         }
     except Exception as e:
         logger.error(f"Cache stats error: {e}")
         return {
             "current_size": 0,
             "max_size": settings.cache_max_size,
-            "ttl_seconds": settings.cache_ttl_seconds
+            "ttl_seconds": settings.cache_ttl_seconds,
         }
-

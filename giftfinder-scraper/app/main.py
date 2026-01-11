@@ -10,22 +10,22 @@ FastAPI application with production-ready features:
 import logging
 import traceback
 from contextlib import asynccontextmanager
-from typing import Dict, Any
+from typing import Any, Dict
+
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
+from app.ai_local import LLMError, parse_query
 from app.config import get_settings, validate_config_on_startup
-from app.logging_config import setup_logging, get_request_id
-from app.middleware import RequestIdMiddleware
-from app.validation import SearchRequest
-from app.ai_local import parse_query, LLMError
-from app.ml_scraper import scrape_mercadolibre
 from app.health import router as health_router
-from app.models.scraper_response import ScraperResponse, InterpretedIntent
-
+from app.logging_config import get_request_id, setup_logging
+from app.middleware import RequestIdMiddleware
+from app.ml_scraper import scrape_mercadolibre
+from app.models.scraper_response import InterpretedIntent, ScraperResponse
+from app.validation import SearchRequest
 
 # Initialize settings and logging
 settings = get_settings()
@@ -43,19 +43,19 @@ async def lifespan(app: FastAPI):
     logger.info("=" * 60)
     logger.info("🚀 GiftFinder Scraper Service Starting")
     logger.info("=" * 60)
-    
+
     try:
         validate_config_on_startup()
         logger.info("✅ Configuration validated successfully")
     except Exception as e:
         logger.error(f"❌ Configuration validation failed: {e}")
         raise
-    
+
     logger.info(f"📊 Service ready on port {settings.port}")
     logger.info("=" * 60)
-    
+
     yield
-    
+
     # Shutdown
     logger.info("🛑 GiftFinder Scraper Service Shutting Down")
 
@@ -65,7 +65,7 @@ app = FastAPI(
     title="GiftFinder Scraper API",
     description="Production-ready scraper service with LLM integration",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add middleware
@@ -87,24 +87,28 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
     Global exception handler for unhandled errors.
     """
     request_id = get_request_id()
-    
+
     logger.error(
         f"Unhandled exception: {str(exc)}",
         extra={
-            'path': request.url.path,
-            'method': request.method,
-            'error_type': type(exc).__name__,
-            'traceback': traceback.format_exc()
-        }
+            "path": request.url.path,
+            "method": request.method,
+            "error_type": type(exc).__name__,
+            "traceback": traceback.format_exc(),
+        },
     )
-    
+
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": "Internal server error",
             "request_id": request_id,
-            "detail": str(exc) if settings.log_level == "DEBUG" else "An unexpected error occurred"
-        }
+            "detail": (
+                str(exc)
+                if settings.log_level == "DEBUG"
+                else "An unexpected error occurred"
+            ),
+        },
     )
 
 
@@ -117,10 +121,7 @@ async def root() -> Dict[str, Any]:
         "service": "GiftFinder Scraper API",
         "version": "1.0.0",
         "status": "online",
-        "ollama": {
-            "host": settings.ollama_host,
-            "model": settings.ollama_model
-        },
+        "ollama": {"host": settings.ollama_host, "model": settings.ollama_model},
         "features": [
             "Structured JSON logging",
             "Request ID tracking",
@@ -128,8 +129,8 @@ async def root() -> Dict[str, Any]:
             "Health checks",
             "Input validation",
             "TTL caching",
-            "Async scraping"
-        ]
+            "Async scraping",
+        ],
     }
 
 
@@ -138,36 +139,36 @@ async def root() -> Dict[str, Any]:
 async def scrape_search(request: Request, req: SearchRequest) -> ScraperResponse:
     """
     Search for gift products based on natural language query.
-    
+
     Args:
         request: FastAPI request object (for rate limiting)
         req: Validated search request with query
-        
+
     Returns:
         ScraperResponse with interpreted intent and product recommendations
-        
+
     Raises:
         503: If LLM service is unavailable
         400: If query validation fails
     """
     # Query is already validated by Pydantic
     original_query = req.query
-    
+
     logger.info(f"New search request: {original_query}")
-    
+
     try:
         # Parse query with LLM
         parsed = parse_query(original_query) or {}
-        
+
         logger.info(
             "Query parsed successfully",
             extra={
-                'query': original_query,
-                'recipient': parsed.get('recipientType'),
-                'interests_count': len(parsed.get('interests', []))
-            }
+                "query": original_query,
+                "recipient": parsed.get("recipientType"),
+                "interests_count": len(parsed.get("interests", [])),
+            },
         )
-        
+
     except LLMError as e:
         logger.error(f"LLM error during query parsing: {e}")
         return JSONResponse(
@@ -175,10 +176,10 @@ async def scrape_search(request: Request, req: SearchRequest) -> ScraperResponse
             content={
                 "error": "LLM service unavailable",
                 "detail": str(e),
-                "request_id": get_request_id()
-            }
+                "request_id": get_request_id(),
+            },
         )
-    
+
     except ValueError as e:
         logger.warning(f"Validation error: {e}")
         return JSONResponse(
@@ -186,35 +187,35 @@ async def scrape_search(request: Request, req: SearchRequest) -> ScraperResponse
             content={
                 "error": "Invalid query",
                 "detail": str(e),
-                "request_id": get_request_id()
-            }
+                "request_id": get_request_id(),
+            },
         )
-    
+
     # Extract interests for scraping
     interests = parsed.get("interests", [])
     logger.debug(f"Detected interests: {interests}")
-    
+
     # Generate keyword from interests or original query
     keyword = interests[0] if interests else original_query
     logger.info(f"Using keyword for scraping: {keyword}")
-    
+
     try:
         # Scrape products
         results = scrape_mercadolibre(keyword, interests)
-        
+
         logger.info(
             "Scraping completed",
             extra={
-                'query': original_query,
-                'keyword': keyword,
-                'product_count': len(results)
-            }
+                "query": original_query,
+                "keyword": keyword,
+                "product_count": len(results),
+            },
         )
-        
+
     except Exception as e:
         logger.error(f"Error scraping MercadoLibre: {e}")
         results = []
-    
+
     # Build response
     return ScraperResponse(
         interpretedIntent=InterpretedIntent(
@@ -224,7 +225,5 @@ async def scrape_search(request: Request, req: SearchRequest) -> ScraperResponse
             budgetMax=parsed.get("budgetMax"),
             interests=parsed.get("interests", []),
         ),
-        recommendations=results
+        recommendations=results,
     )
-
-

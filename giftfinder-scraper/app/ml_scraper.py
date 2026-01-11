@@ -6,14 +6,15 @@ import asyncio
 import json
 import logging
 import uuid
-from typing import List, Dict, Any, Optional
-from bs4 import BeautifulSoup
-import httpx
-from app.cache import cache_get, cache_set
-from app.ai_local import run_llm_json
-from app.validation import sanitize_keyword, validate_ml_url
-from app.config import get_settings
+from typing import Any, Dict, List, Optional
 
+import httpx
+from bs4 import BeautifulSoup
+
+from app.ai_local import run_llm_json
+from app.cache import cache_get, cache_set
+from app.config import get_settings
+from app.validation import sanitize_keyword, validate_ml_url
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -26,7 +27,7 @@ _scraping_semaphore: Optional[asyncio.Semaphore] = None
 def get_semaphore() -> asyncio.Semaphore:
     """
     Get or create the global scraping semaphore.
-    
+
     Returns:
         Semaphore for controlling concurrent scrapes
     """
@@ -39,11 +40,11 @@ def get_semaphore() -> asyncio.Semaphore:
 def _extract_product(item, interests: List[str]) -> Optional[dict]:
     """
     Extract product data from a BeautifulSoup item.
-    
+
     Args:
         item: BeautifulSoup item element
         interests: List of user interests for tagging
-        
+
     Returns:
         Product dict or None if extraction fails
     """
@@ -52,21 +53,21 @@ def _extract_product(item, interests: List[str]) -> Optional[dict]:
         price_el = item.select_one("span.andes-money-amount__fraction")
         image_el = item.select_one("img")
         link_el = item.select_one("a")
-        
+
         # Extract fields
         title = title_el.text.strip() if title_el else None
         image_url = image_el.get("src") if image_el else None
         product_url = link_el.get("href") if link_el else None
-        
+
         # Validate required fields
         if not title or not product_url:
             return None
-        
+
         # Validate product URL
         if not validate_ml_url(product_url):
             logger.warning(f"Invalid product URL: {product_url}")
             return None
-        
+
         # Parse price (handle Argentine format: "12.345" -> 12345.0)
         price = None
         if price_el:
@@ -75,7 +76,7 @@ def _extract_product(item, interests: List[str]) -> Optional[dict]:
                 price = float(price_raw)
             except (ValueError, AttributeError) as e:
                 logger.debug(f"Could not parse price: {e}")
-        
+
         return {
             "id": str(uuid.uuid4()),
             "title": title,
@@ -85,9 +86,9 @@ def _extract_product(item, interests: List[str]) -> Optional[dict]:
             "rating": None,
             "currency": "ARS",
             "store": "MercadoLibre",
-            "tags": interests or []
+            "tags": interests or [],
         }
-        
+
     except Exception as e:
         logger.warning(f"Error extracting product: {e}")
         return None
@@ -99,11 +100,11 @@ def _extract_product(item, interests: List[str]) -> Optional[dict]:
 async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[dict]:
     """
     Asynchronously scrape MercadoLibre with rate limiting and caching.
-    
+
     Args:
         keyword: Search keyword
         interests: List of user interests
-        
+
     Returns:
         List of product dictionaries
     """
@@ -112,7 +113,7 @@ async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[
     if not keyword:
         logger.warning("Empty keyword after sanitization")
         return []
-    
+
     cache_key = f"ml::{keyword}"
 
     # -------------------------
@@ -122,19 +123,19 @@ async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[
     if cached:
         logger.info(f"Cache hit for keyword: {keyword}")
         return cached
-    
+
     # Acquire semaphore to limit concurrent scrapes
     async with get_semaphore():
         logger.info(f"Starting scrape for keyword: {keyword}")
-        
+
         # Construct URL
         url = f"https://listado.mercadolibre.com.ar/{keyword}"
-        
+
         # Validate URL before making request
         if not validate_ml_url(url):
             logger.error(f"Invalid URL constructed: {url}")
             return []
-        
+
         # Rate limiting: wait 1 second between requests
         await asyncio.sleep(1)
 
@@ -154,19 +155,21 @@ async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[
         }
 
         try:
-            async with httpx.AsyncClient(timeout=settings.scraping_timeout_seconds) as client:
+            async with httpx.AsyncClient(
+                timeout=settings.scraping_timeout_seconds
+            ) as client:
                 response = await client.get(url, headers=headers)
-                
+
             # ------------------------------------------------
             # LOG RESPONSE
             # ------------------------------------------------
             logger.info(
                 f"MercadoLibre response",
                 extra={
-                    'status_code': response.status_code,
-                    'content_length': len(response.text),
-                    'url': url
-                }
+                    "status_code": response.status_code,
+                    "content_length": len(response.text),
+                    "url": url,
+                },
             )
 
             if response.status_code != 200:
@@ -206,8 +209,8 @@ async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[
             # EXTRACT PRODUCTS
             # ============================================================
             final_products = []
-            
-            for item in items[:settings.max_products_per_scrape]:
+
+            for item in items[: settings.max_products_per_scrape]:
                 product = _extract_product(item, interests)
                 if product:
                     final_products.append(product)
@@ -217,10 +220,7 @@ async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[
             # ============================================================
             logger.info(
                 f"Scraping completed",
-                extra={
-                    'keyword': keyword,
-                    'product_count': len(final_products)
-                }
+                extra={"keyword": keyword, "product_count": len(final_products)},
             )
 
             # ❗ cachear SOLO si hay resultados reales
@@ -228,15 +228,15 @@ async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[
                 cache_set(cache_key, final_products)
 
             return final_products
-            
+
         except httpx.TimeoutException:
             logger.error(f"Scraping timeout for keyword: {keyword}")
             return []
-            
+
         except httpx.RequestError as e:
             logger.error(f"Scraping request error for keyword {keyword}: {e}")
             return []
-            
+
         except Exception as e:
             logger.error(f"Unexpected scraping error for keyword {keyword}: {e}")
             return []
@@ -248,11 +248,11 @@ async def scrape_mercadolibre_async(keyword: str, interests: List[str]) -> List[
 def scrape_mercadolibre(keyword: str, interests: List[str]) -> List[dict]:
     """
     Synchronous wrapper for scrape_mercadolibre_async.
-    
+
     Args:
         keyword: Search keyword
         interests: List of user interests
-        
+
     Returns:
         List of product dictionaries
     """
@@ -263,10 +263,15 @@ def scrape_mercadolibre(keyword: str, interests: List[str]) -> List[dict]:
             # If loop is running, create a new one for this task
             # This can happen in some async contexts
             import nest_asyncio
+
             nest_asyncio.apply()
-            return loop.run_until_complete(scrape_mercadolibre_async(keyword, interests))
+            return loop.run_until_complete(
+                scrape_mercadolibre_async(keyword, interests)
+            )
         else:
-            return loop.run_until_complete(scrape_mercadolibre_async(keyword, interests))
+            return loop.run_until_complete(
+                scrape_mercadolibre_async(keyword, interests)
+            )
     except RuntimeError:
         # No event loop exists, create a new one
         return asyncio.run(scrape_mercadolibre_async(keyword, interests))
@@ -306,9 +311,7 @@ def clean_products_with_ai(items_html):
     Legacy function for AI-based product extraction.
     Currently not used in main flow but kept for compatibility.
     """
-    prompt = PRODUCT_PROMPT.format(
-        html_list=json.dumps(items_html, ensure_ascii=False)
-    )
+    prompt = PRODUCT_PROMPT.format(html_list=json.dumps(items_html, ensure_ascii=False))
 
     result = run_llm_json(prompt)
 
