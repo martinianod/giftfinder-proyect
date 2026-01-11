@@ -1,0 +1,18 @@
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: var(--spacing-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: var(--spacing-8);
+  }
+}

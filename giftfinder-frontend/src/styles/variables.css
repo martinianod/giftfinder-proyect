@@ -1,0 +1,171 @@
+:root {
+  /* 🎁 Gift Romantic Soft - Light Mode Palette */
+  
+  /* Primary Colors - Warm Coral Pink */
+  --color-primary-50: #fff5f7;
+  --color-primary-100: #ffe5eb;
+  --color-primary-200: #ffd1db;
+  --color-primary-300: #ffadc0;
+  --color-primary-400: #ff8aa5;
+  --color-primary-500: #FF6680;
+  --color-primary-600: #E95A72;
+  --color-primary-700: #d14d63;
+  --color-primary-800: #b94055;
+  --color-primary-900: #a13347;
+
+  /* Secondary Colors - Soft Yellow Gift */
+  --color-secondary-50: #fffbf0;
+  --color-secondary-100: #fff6db;
+  --color-secondary-200: #ffedb3;
+  --color-secondary-300: #ffe38a;
+  --color-secondary-400: #ffd97a;
+  --color-secondary-500: #FFD66E;
+  --color-secondary-600: #e6c062;
+  --color-secondary-700: #ccaa56;
+  --color-secondary-800: #b3944a;
+  --color-secondary-900: #997e3e;
+
+  /* Accent Colors - AI Purple/Lilac */
+  --color-accent-50: #faf5ff;
+  --color-accent-100: #f3e8ff;
+  --color-accent-200: #e9d5ff;
+  --color-accent-300: #d8b4fe;
+  --color-accent-400: #c084fc;
+  --color-accent-500: #9B6DFF;
+  --color-accent-600: #8b5de6;
+  --color-accent-700: #7a4dcc;
+  --color-accent-800: #6a3db3;
+  --color-accent-900: #5a2d99;
+
+  /* Neutral Palette - Warm Grays */
+  --color-neutral-50: #FFF9FC;
+  --color-neutral-100: #f8f4f6;
+  --color-neutral-200: #EDEDED;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a8a8a8;
+  --color-neutral-500: #6F6F6F;
+  --color-neutral-600: #5a5a5a;
+  --color-neutral-700: #454545;
+  --color-neutral-800: #2D2D2D;
+  --color-neutral-900: #1a1a1a;
+
+  /* Semantic Colors */
+  --color-success: #3CCB8E;
+  --color-success-dark: #2fb577;
+  --color-warning: #FFD66E;
+  --color-warning-dark: #e6c062;
+  --color-error: #D64568;
+  --color-error-dark: #c13a5c;
+  --color-info: #9B6DFF;
+  --color-info-dark: #8b5de6;
+
+  /* Typography */
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-heading: 'Outfit', var(--font-family-base);
+  
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows (Enhanced Depth) */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.15), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-glow-primary: 0 0 20px rgb(255 102 128 / 0.4);
+  --shadow-glow-accent: 0 0 20px rgb(155 109 255 / 0.4);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* Semantic colors based on theme - Light Mode */
+  --color-bg-primary: #FFF9FC;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #f8f4f6;
+  --color-text-primary: #2D2D2D;
+  --color-text-secondary: #6F6F6F;
+  --color-text-tertiary: #a8a8a8;
+  --color-border: #EDEDED;
+  --color-border-hover: #d4d4d4;
+}
+
+/* 🌙 Midnight Gift AI - Dark Mode Palette (DISABLED) */
+/* Uncomment this block to enable dark mode support */
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary-500: #FF6FB3;
+    --color-primary-600: #FF4EA7;
+    --color-primary-700: #e6459a;
+    
+    --color-secondary-500: #D4AF37;
+    --color-secondary-600: #c09f31;
+    
+    --color-accent-500: #9B6DFF;
+    --color-accent-600: #8b5de6;
+    
+    --color-bg-primary: #0F0A12;
+    --color-bg-secondary: #1B141F;
+    --color-bg-tertiary: #251e2b;
+    
+    --color-text-primary: #F5EAFB;
+    --color-text-secondary: #B8AFC6;
+    --color-text-tertiary: #8a7f96;
+    
+    --color-border: #3A2F42;
+    --color-border-hover: #4d4156;
+    
+    --color-error: #FF4E78;
+  }
+}
+*/

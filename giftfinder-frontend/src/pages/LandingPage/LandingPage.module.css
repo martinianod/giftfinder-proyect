@@ -1,0 +1,199 @@
+.page {
+  background: linear-gradient(
+    180deg,
+    var(--color-primary-50) 0%,
+    var(--color-accent-50) 50%,
+    var(--color-bg-primary) 100%
+  );
+  color: var(--color-text-primary);
+}
+
+.hero {
+  text-align: center;
+  padding: var(--spacing-16) var(--spacing-6);
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
+}
+
+.logoCircle {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-600),
+    var(--color-accent-600)
+  );
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xl);
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+.logoText {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  margin-bottom: var(--spacing-4);
+}
+
+.gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-600),
+    var(--color-accent-600)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  max-width: 700px;
+  margin: 0 auto var(--spacing-10);
+  color: var(--color-neutral-700);
+  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-lg);
+}
+
+.primaryButton {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-600),
+    var(--color-accent-600)
+  );
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-fast);
+}
+.primaryButton:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-xl);
+}
+
+.secondaryButton {
+  background: transparent;
+  color: var(--color-neutral-700);
+  border: none;
+  margin-top: var(--spacing-3);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: var(--transition-fast);
+}
+.secondaryButton:hover {
+  color: var(--color-primary-600);
+}
+
+/* FEATURES */
+.featuresSection {
+  padding: var(--spacing-16) var(--spacing-6);
+  text-align: center;
+}
+
+.sectionTitle {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-10);
+}
+
+.featuresGrid {
+  display: grid;
+  gap: var(--spacing-6);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.featureCard {
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.featureStep {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-600),
+    var(--color-accent-600)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* BENEFICIOS */
+.benefitsSection {
+  text-align: center;
+  padding: var(--spacing-16) var(--spacing-6);
+}
+
+.benefitsGrid {
+  display: grid;
+  gap: var(--spacing-6);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.benefitCard {
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* USE CASES */
+.useCasesSection {
+  text-align: center;
+  padding: var(--spacing-16) var(--spacing-6);
+}
+
+.useCasesGrid {
+  display: grid;
+  gap: var(--spacing-6);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.useCaseCard {
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* FOOTER */
+.footer {
+  padding: var(--spacing-10) var(--spacing-6);
+  text-align: center;
+  color: var(--color-neutral-700);
+}
+
+.footerLink {
+  border: none;
+  background: none;
+  color: var(--color-primary-600);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  margin-top: var(--spacing-3);
+}
