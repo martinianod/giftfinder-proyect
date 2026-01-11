@@ -42,7 +42,10 @@ class Settings(BaseSettings):
     @field_validator('log_level')
     @classmethod
     def validate_log_level(cls, v: str) -> str:
-        """Validate log level is one of the allowed values."""
+        """
+        Validate log level is one of the allowed values.
+        Accepts any case (e.g., 'info', 'INFO', 'Info') and normalizes to uppercase.
+        """
         allowed = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
         v_upper = v.upper()
         if v_upper not in allowed:

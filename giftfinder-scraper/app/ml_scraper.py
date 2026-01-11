@@ -233,12 +233,14 @@ def scrape_mercadolibre(keyword: str, interests: List[str]) -> List[Dict[str, An
     Creates event loop if needed and runs async scraper.
     """
     try:
-        loop = asyncio.get_event_loop()
+        # Try to use existing event loop
+        loop = asyncio.get_running_loop()
+        # If we're here, there's already a running loop, which shouldn't happen in sync context
+        # Fall back to asyncio.run
+        return asyncio.run(scrape_mercadolibre_async(keyword, interests))
     except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    
-    return loop.run_until_complete(scrape_mercadolibre_async(keyword, interests))
+        # No event loop running, use asyncio.run (recommended for Python 3.7+)
+        return asyncio.run(scrape_mercadolibre_async(keyword, interests))
 
 
 # ============================================================

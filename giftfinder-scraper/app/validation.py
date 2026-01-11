@@ -26,8 +26,9 @@ class SearchRequest(BaseModel):
             raise ValueError("Query cannot be empty or whitespace only")
         
         # Allow letters (including Spanish), numbers, spaces, and basic punctuation
-        # Pattern allows: letters, numbers, spaces, áéíóúñü, and basic punctuation (.,!?-)
-        sanitized = re.sub(r'[^\w\sáéíóúñüÁÉÍÓÚÑÜ.,!?\-]', '', v)
+        # Pattern allows: a-z, A-Z, 0-9, spaces, Spanish chars (áéíóúñü), and .,!?-
+        allowed_chars_pattern = r'[^\w\sáéíóúñüÁÉÍÓÚÑÜ.,!?\-]'
+        sanitized = re.sub(allowed_chars_pattern, '', v)
         
         # Collapse multiple spaces
         sanitized = re.sub(r'\s+', ' ', sanitized).strip()

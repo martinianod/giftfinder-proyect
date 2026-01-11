@@ -1,7 +1,7 @@
 # 📖 GiftFinder Operations Runbook
 
 **Version:** 1.0  
-**Last Updated:** January 2024  
+**Last Updated:** January 11, 2024  
 **Maintainers:** DevOps Team
 
 ---
