@@ -18,6 +18,8 @@ jobs:
   scraper-lint:
     name: Scraper - Lint & Format Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./giftfinder-scraper
@@ -62,6 +64,8 @@ jobs:
   scraper-test:
     name: Scraper - Tests & Coverage
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: scraper-lint
     defaults:
       run:
@@ -104,6 +108,8 @@ jobs:
   scraper-security:
     name: Scraper - Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./giftfinder-scraper
@@ -132,6 +138,8 @@ jobs:
   backend-build:
     name: Backend - Build & Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./giftfinder-backend
@@ -189,6 +197,8 @@ jobs:
   frontend-lint:
     name: Frontend - Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./giftfinder-frontend
@@ -213,6 +223,8 @@ jobs:
   frontend-build:
     name: Frontend - Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: frontend-lint
     defaults:
       run:
@@ -274,6 +286,8 @@ jobs:
   docker-build:
     name: Docker - Build Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [scraper-test, backend-build, frontend-build]
     
     strategy:
@@ -300,6 +314,8 @@ jobs:
   docker-compose-test:
     name: Docker Compose - Integration Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: docker-build
     
     steps:
