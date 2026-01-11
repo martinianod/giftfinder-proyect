@@ -83,8 +83,9 @@ class Settings(BaseSettings):
     @classmethod
     def validate_ollama_host(cls, v: str) -> str:
         """Validate that ollama_host is a valid URL."""
-        if not validators.url(v):
-            raise ValueError(f"OLLAMA_HOST must be a valid URL, got: {v}")
+        # Basic URL format validation (allow hostnames without TLD for docker)
+        if not v.startswith(("http://", "https://")):
+            raise ValueError(f"OLLAMA_HOST must start with http:// or https://, got: {v}")
         return v
     
     @field_validator("log_level")
