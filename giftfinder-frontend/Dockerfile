@@ -1,22 +1,35 @@
-# ===== FRONTEND BUILD =====
-FROM node:20 AS build
+# ===== BUILD STAGE =====
+FROM node:20-alpine AS build
 WORKDIR /app
 
+# Copy package files
 COPY package.json package-lock.json ./
-RUN npm install
 
+# Install dependencies with clean install for production
+RUN npm ci
+
+# Copy source code
 COPY . .
+
+# Build application
 RUN npm run build
 
-# ===== NGINX SERVE =====
+# ===== PRODUCTION STAGE =====
 FROM nginx:alpine
 
-# Copia el build
+# Copy built assets from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Configurar nginx para SPA + proxy al backend
+# Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+# Expose port 5173 to match service configuration
+EXPOSE 5173
 
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:5173/ || exit 1
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
+
