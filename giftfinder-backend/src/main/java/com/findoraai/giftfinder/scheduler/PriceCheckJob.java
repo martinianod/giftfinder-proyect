@@ -109,7 +109,11 @@ public class PriceCheckJob {
                         }
                     }
 
-                    // Create new price history entry (simulate price check - in real implementation, fetch from scraper)
+                    // TODO: In production, integrate with scraper service to fetch actual current prices
+                    // For now, we just record the current price as history
+                    // Example: BigDecimal realCurrentPrice = scraperClient.fetchProductPrice(product.getProductId());
+                    
+                    // Create new price history entry
                     PriceHistory newHistory = PriceHistory.builder()
                         .savedProduct(product)
                         .price(currentPrice)

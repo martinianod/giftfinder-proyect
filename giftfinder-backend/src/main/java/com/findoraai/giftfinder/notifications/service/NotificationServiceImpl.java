@@ -105,7 +105,8 @@ public class NotificationServiceImpl implements NotificationService {
         String subject = String.format("Price Drop Alert: %s", productTitle);
         boolean success = sendEmail(user.getEmail(), subject, "price-drop-email", data);
         
-        String referenceId = String.format("price-drop-%s", productTitle);
+        // Use product ID for stable reference instead of title
+        String referenceId = String.format("price-drop-%s-%s", user.getId(), productTitle.replaceAll("[^a-zA-Z0-9]", "-"));
         logNotification(
             user,
             NotificationLog.NotificationType.PRICE_DROP,

@@ -57,5 +57,7 @@ app:
 scheduler:
   reminders:
     cron: ${REMINDER_JOB_CRON:0 0 6 * * *}  # Daily at 6 AM
+  reminders-send:
+    cron: ${REMINDER_SEND_JOB_CRON:0 30 6 * * *}  # Daily at 6:30 AM
   price-check:
     cron: ${PRICE_CHECK_JOB_CRON:0 0 */12 * * *}  # Every 12 hours

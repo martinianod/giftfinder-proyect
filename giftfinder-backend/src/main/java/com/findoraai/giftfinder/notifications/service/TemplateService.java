@@ -57,6 +57,16 @@ public class TemplateService {
             }
         }
         
+        // Log warning for any remaining placeholders
+        if (result.contains("{{")) {
+            int start = result.indexOf("{{");
+            int end = result.indexOf("}}", start);
+            if (end > start) {
+                String placeholder = result.substring(start, end + 2);
+                log.warn("Unknown placeholder found in template: {}", placeholder);
+            }
+        }
+        
         // Remove any remaining placeholders
         result = result.replaceAll("\\{\\{[^}]+\\}\\}", "");
         

@@ -61,7 +61,7 @@ public class NotificationPreferences {
             preferredChannel = Reminder.NotificationChannel.EMAIL;
         }
         if (reminderDaysBefore == null || reminderDaysBefore.isEmpty()) {
-            reminderDaysBefore = List.of(14, 7, 2);
+            reminderDaysBefore = new ArrayList<>(List.of(14, 7, 2));
         }
     }
 

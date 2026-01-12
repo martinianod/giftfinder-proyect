@@ -22,7 +22,7 @@ public class ReminderSendJob {
     private final ReminderRepository reminderRepository;
     private final NotificationService notificationService;
 
-    @Scheduled(cron = "${scheduler.reminders.cron:0 0 6 * * *}")
+    @Scheduled(cron = "${scheduler.reminders-send.cron:0 30 6 * * *}")
     @Transactional
     public void sendDueReminders() {
         log.info("Starting reminder send job");

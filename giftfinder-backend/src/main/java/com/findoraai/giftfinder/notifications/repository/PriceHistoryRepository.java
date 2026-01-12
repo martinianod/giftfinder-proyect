@@ -14,6 +14,11 @@ import java.util.Optional;
 public interface PriceHistoryRepository extends JpaRepository<PriceHistory, Long> {
     List<PriceHistory> findBySavedProductOrderByCheckedAtDesc(SavedProduct savedProduct);
     
-    @Query("SELECT ph FROM PriceHistory ph WHERE ph.savedProduct = :product ORDER BY ph.checkedAt DESC LIMIT 1")
-    Optional<PriceHistory> findLatestByProduct(@Param("product") SavedProduct product);
+    @Query("SELECT ph FROM PriceHistory ph WHERE ph.savedProduct = :product ORDER BY ph.checkedAt DESC")
+    List<PriceHistory> findTopByProduct(@Param("product") SavedProduct product);
+    
+    default Optional<PriceHistory> findLatestByProduct(SavedProduct product) {
+        List<PriceHistory> results = findTopByProduct(product);
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
 }
