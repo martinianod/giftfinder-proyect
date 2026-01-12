@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from typing import List, Optional
+
+from pydantic import BaseModel
+
 
 class InterpretedIntent(BaseModel):
     recipient: Optional[str] = None
@@ -7,6 +9,7 @@ class InterpretedIntent(BaseModel):
     budgetMin: Optional[float] = None
     budgetMax: Optional[float] = None
     interests: List[str] = []
+
 
 class ScrapedProductResponse(BaseModel):
     id: str
@@ -19,6 +22,7 @@ class ScrapedProductResponse(BaseModel):
     store: Optional[str]
     rating: Optional[float]
     tags: List[str] = []
+
 
 class ScraperResponse(BaseModel):
     interpretedIntent: InterpretedIntent
