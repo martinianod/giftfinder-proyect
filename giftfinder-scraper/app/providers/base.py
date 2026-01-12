@@ -5,7 +5,12 @@ Base abstract class for product providers.
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from app.providers.models import ProductQuery, ProviderResult
+from app.providers.models import (
+    ProductQuery,
+    ProviderCapabilities,
+    ProviderContext,
+    ProviderResult,
+)
 
 
 class ProductProvider(ABC):
@@ -13,9 +18,10 @@ class ProductProvider(ABC):
     Abstract base class for all product providers.
     
     Each provider is responsible for:
-    1. Checking if it can handle a query (supports)
-    2. Fetching products for a query (search)
-    3. Returning standardized Product objects
+    1. Declaring its capabilities
+    2. Checking if it can handle a query (supports)
+    3. Fetching products for a query (search)
+    4. Returning standardized Product objects
     """
 
     @property
@@ -26,6 +32,17 @@ class ProductProvider(ABC):
         
         Returns:
             Unique provider name
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def capabilities(self) -> ProviderCapabilities:
+        """
+        Provider capabilities declaration.
+        
+        Returns:
+            ProviderCapabilities describing what this provider supports
         """
         pass
 
@@ -43,12 +60,17 @@ class ProductProvider(ABC):
         pass
 
     @abstractmethod
-    async def search(self, query: ProductQuery) -> ProviderResult:
+    async def search(
+        self,
+        query: ProductQuery,
+        ctx: Optional[ProviderContext] = None
+    ) -> ProviderResult:
         """
         Fetch products for the given query.
         
         Args:
             query: The product query to execute
+            ctx: Optional context with timeout, tracing, etc.
             
         Returns:
             ProviderResult with products and metadata

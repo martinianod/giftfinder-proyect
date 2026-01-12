@@ -12,7 +12,15 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from app.providers.base import ProductProvider
-from app.providers.models import Product, ProductQuery, ProviderMetadata, ProviderResult
+from app.providers.models import (
+    Product,
+    ProductQuery,
+    ProviderCapabilities,
+    ProviderContext,
+    ProviderMetadata,
+    ProviderResult,
+    VendorInfo,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +46,20 @@ class ReferenceProvider(ProductProvider):
     def name(self) -> str:
         """Provider identifier."""
         return "reference"
+
+    @property
+    def capabilities(self) -> ProviderCapabilities:
+        """Provider capabilities."""
+        return ProviderCapabilities(
+            supportsImages=True,
+            supportsPriceFilter=True,
+            supportsLocation=False,
+            supportsStock=False,
+            supportsDeepLink=False,  # Returns search URLs, not direct links
+            supportsCategories=True,
+            supportsRatings=False,
+            supportsShipping=False,
+        )
 
     def _load_data(self) -> None:
         """Load reference data from JSON file."""
@@ -240,9 +262,9 @@ class ReferenceProvider(ProductProvider):
             images=[
                 f"https://http2.mlstatic.com/D_NQ_NP_2X_{image_keyword}_placeholder.jpg"
             ],
-            price=price,
+            price=price if price is not None else 0.0,
             currency="ARS",
-            vendor="Sugerencia",
+            vendor=VendorInfo(name="Sugerencia", id=None),
             url=url,
             sourceProvider=self.name,
             categories=[ref_data.get("category", "general")],
@@ -250,7 +272,11 @@ class ReferenceProvider(ProductProvider):
             score=score,
         )
 
-    async def search(self, query: ProductQuery) -> ProviderResult:
+    async def search(
+        self,
+        query: ProductQuery,
+        ctx: Optional[ProviderContext] = None
+    ) -> ProviderResult:
         """
         Search reference products matching the query.
         

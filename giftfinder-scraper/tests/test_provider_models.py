@@ -52,16 +52,16 @@ class TestProductQuery:
 
     def test_limit_validation(self):
         """Test ProductQuery limit validation."""
-        query = ProductQuery(limit=50)
-        assert query.limit == 50
+        query = ProductQuery(limit=30)  # Changed from 50 to 30 (new max)
+        assert query.limit == 30
 
         # Test minimum
         with pytest.raises(Exception):
             ProductQuery(limit=0)
 
-        # Test maximum
+        # Test maximum - now 30 instead of 100
         with pytest.raises(Exception):
-            ProductQuery(limit=101)
+            ProductQuery(limit=31)
 
     def test_with_recipient_profile(self):
         """Test ProductQuery with recipient profile."""
@@ -76,23 +76,29 @@ class TestProduct:
 
     def test_minimal_product(self):
         """Test Product with minimal required fields."""
+        from app.providers.models import VendorInfo
+        
         product = Product(
             id="test-123",
             title="Test Product",
-            vendor="Test Vendor",
+            price=100.0,  # Now required
+            vendor=VendorInfo(name="Test Vendor"),  # Now a structured object
             url="https://example.com/product",
             sourceProvider="test",
             currency="ARS",
         )
         assert product.id == "test-123"
         assert product.title == "Test Product"
-        assert product.vendor == "Test Vendor"
+        assert product.price == 100.0
+        assert product.vendor.name == "Test Vendor"
         assert product.url == "https://example.com/product"
         assert product.sourceProvider == "test"
         assert product.currency == "ARS"
 
     def test_full_product(self):
         """Test Product with all fields."""
+        from app.providers.models import VendorInfo
+        
         product = Product(
             id="test-123",
             title="Test Product",
@@ -100,7 +106,7 @@ class TestProduct:
             images=["https://example.com/image.jpg"],
             price=10000.0,
             currency="ARS",
-            vendor="Test Vendor",
+            vendor=VendorInfo(name="Test Vendor"),  # Now a structured object
             url="https://example.com/product",
             sourceProvider="test",
             categories=["technology"],
@@ -116,10 +122,13 @@ class TestProduct:
 
     def test_default_lists(self):
         """Test that list fields default to empty lists."""
+        from app.providers.models import VendorInfo
+        
         product = Product(
             id="test-123",
             title="Test Product",
-            vendor="Test Vendor",
+            price=100.0,  # Now required
+            vendor=VendorInfo(name="Test Vendor"),  # Now a structured object
             url="https://example.com/product",
             sourceProvider="test",
             currency="ARS",
@@ -149,12 +158,13 @@ class TestProviderResult:
 
     def test_with_products(self):
         """Test ProviderResult with products."""
-        from app.providers.models import ProviderMetadata
+        from app.providers.models import ProviderMetadata, VendorInfo
 
         product = Product(
             id="test-123",
             title="Test Product",
-            vendor="Test Vendor",
+            price=100.0,  # Now required
+            vendor=VendorInfo(name="Test Vendor"),  # Now a structured object
             url="https://example.com/product",
             sourceProvider="test",
             currency="ARS",

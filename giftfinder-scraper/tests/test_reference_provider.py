@@ -42,7 +42,7 @@ class TestReferenceProvider:
         # Check that products match keywords
         for product in result.products:
             assert product.sourceProvider == "reference"
-            assert product.vendor == "Sugerencia"
+            assert product.vendor.name == "Sugerencia"
 
     @pytest.mark.asyncio
     async def test_search_with_interests(self, provider):
@@ -129,7 +129,7 @@ class TestReferenceProvider:
         assert product.id
         assert product.title
         assert product.url
-        assert product.vendor == "Sugerencia"
+        assert product.vendor.name == "Sugerencia"
         assert product.sourceProvider == "reference"
         assert product.currency == "ARS"
         assert isinstance(product.images, list)
