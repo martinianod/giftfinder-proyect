@@ -48,6 +48,22 @@ See [Provider Architecture Documentation](docs/architecture/providers.md) for de
 
 ## ✨ Features
 
+### Core Features
+
+- 🎁 **AI-Powered Gift Search**: Natural language query understanding with local LLM
+- 🔍 **Multi-Provider Product Search**: Reference data + live web scraping
+- 👤 **User Authentication**: JWT-based secure authentication
+- ⭐ **Favorites Management**: Save and organize favorite gift ideas
+
+### Proactive Automation Features (NEW! 🎉)
+
+- 📅 **Event Reminders**: Store recipients and important dates, receive automated email reminders
+- 💰 **Price Drop Tracking**: Save products and get notified when prices drop
+- 🔔 **Configurable Notifications**: Customize reminder days and notification preferences
+- 📊 **Admin Dashboard**: Monitor scheduled jobs and notification queue
+
+See [Proactive Automation Documentation](docs/PROACTIVE_AUTOMATION.md) for detailed information.
+
 ### Production-Ready Improvements
 
 - ✅ **Security**: Input validation, sanitization, SSRF protection, rate limiting
@@ -518,6 +534,7 @@ LOG_LEVEL=DEBUG
 - [Audit Report](docs/AUDIT_REPORT.md) - Complete technical audit
 - [Runbook](docs/RUNBOOK.md) - Operational procedures
 - [Provider Architecture](docs/architecture/providers.md) - Provider system design and implementation
+- [Proactive Automation](docs/PROACTIVE_AUTOMATION.md) - Event reminders and price drop tracking (NEW!)
 - [API Documentation](http://localhost:8001/docs) - Interactive API docs (when running)
 
 ## 🔌 Extending with New Providers

@@ -13,6 +13,23 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: ${SMTP_HOST:smtp.gmail.com}
+  task:
+    scheduling:
+      pool:
+        size: 2
 
 openai:
   api-key: ${OPENAI_API_KEY}
@@ -29,6 +46,18 @@ jwt:
 logging:
   level:
     org.springframework.web.reactive.function.client: DEBUG
+    com.findoraai.giftfinder.notifications: INFO
 
 scraper:
   base-url: ${SCRAPER_BASE_URL:http://localhost:8001}
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:5173}
+  
+scheduler:
+  reminders:
+    cron: ${REMINDER_JOB_CRON:0 0 6 * * *}  # Daily at 6 AM
+  reminders-send:
+    cron: ${REMINDER_SEND_JOB_CRON:0 30 6 * * *}  # Daily at 6:30 AM
+  price-check:
+    cron: ${PRICE_CHECK_JOB_CRON:0 0 */12 * * *}  # Every 12 hours
