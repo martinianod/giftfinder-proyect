@@ -25,6 +25,8 @@ from app.logging_config import get_request_id, setup_logging
 from app.middleware import RequestIdMiddleware
 from app.ml_scraper import scrape_mercadolibre
 from app.models.scraper_response import InterpretedIntent, ScraperResponse
+from app.providers.aggregator import get_aggregator
+from app.providers.models import ProductQuery, RecipientProfile
 from app.validation import SearchRequest
 
 # Initialize settings and logging
@@ -191,29 +193,67 @@ async def scrape_search(request: Request, req: SearchRequest) -> ScraperResponse
             },
         )
 
-    # Extract interests for scraping
+    # Extract interests and keywords
     interests = parsed.get("interests", [])
     logger.debug(f"Detected interests: {interests}")
 
-    # Generate keyword from interests or original query
-    keyword = interests[0] if interests else original_query
-    logger.info(f"Using keyword for scraping: {keyword}")
+    # Generate keywords from interests or original query
+    keywords = interests if interests else [original_query]
+    
+    # Create ProductQuery for aggregator
+    product_query = ProductQuery(
+        keywords=keywords,
+        priceMin=parsed.get("budgetMin"),
+        priceMax=parsed.get("budgetMax"),
+        recipientProfile=RecipientProfile(
+            type=parsed.get("recipientType", "unknown"),
+            age=parsed.get("age"),
+            interests=interests,
+        ),
+        limit=20,  # Request more from aggregator, response will show top results
+    )
+
+    logger.info(
+        "Searching products via aggregator",
+        extra={
+            "keywords": keywords,
+            "interests": interests,
+            "priceMin": parsed.get("budgetMin"),
+            "priceMax": parsed.get("budgetMax"),
+        },
+    )
 
     try:
-        # Scrape products
-        results = scrape_mercadolibre(keyword, interests)
+        # Search products via aggregator (provider-based)
+        aggregator = get_aggregator()
+        products = await aggregator.search_products(product_query)
 
         logger.info(
-            "Scraping completed",
+            "Product search completed",
             extra={
                 "query": original_query,
-                "keyword": keyword,
-                "product_count": len(results),
+                "product_count": len(products),
             },
         )
 
+        # Convert Product objects to ScrapedProductResponse format (backward compatibility)
+        results = []
+        for product in products:
+            results.append({
+                "id": product.id,
+                "title": product.title,
+                "description": product.description,
+                "price": product.price,
+                "currency": product.currency,
+                "image_url": product.images[0] if product.images else None,
+                "product_url": product.url,
+                "store": product.vendor,
+                "rating": None,
+                "tags": product.tags,
+            })
+
     except Exception as e:
-        logger.error(f"Error scraping MercadoLibre: {e}")
+        logger.error(f"Error during product search: {e}")
         results = []
 
     # Build response

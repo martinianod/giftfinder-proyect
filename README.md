@@ -2,29 +2,49 @@
 
 [![CI Pipeline](https://github.com/martinianod/giftfinder-proyect/actions/workflows/ci.yml/badge.svg)](https://github.com/martinianod/giftfinder-proyect/actions/workflows/ci.yml)
 
-GiftFinder is a production-ready gift recommendation system that uses AI to understand natural language queries and find relevant products on MercadoLibre Argentina.
+GiftFinder is a production-ready gift recommendation system that uses AI to understand natural language queries and find relevant products using a pluggable provider architecture.
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Frontend   │────▶│   Backend    │────▶│   Scraper   │────▶│   Ollama    │
-│   (React)   │     │(Spring Boot) │     │  (FastAPI)  │     │    (LLM)    │
-└─────────────┘     └──────────────┘     └─────────────┘     └─────────────┘
+┌─────────────┐     ┌──────────────┐     ┌─────────────────┐     ┌─────────────┐
+│  Frontend   │────▶│   Backend    │────▶│     Scraper     │────▶│   Ollama    │
+│   (React)   │     │(Spring Boot) │     │   (FastAPI)     │     │    (LLM)    │
+└─────────────┘     └──────────────┘     └─────────────────┘     └─────────────┘
                            │                      │
                            ▼                      ▼
-                    ┌──────────────┐     ┌─────────────┐
-                    │  PostgreSQL  │     │ MercadoLibre│
-                    └──────────────┘     └─────────────┘
+                    ┌──────────────┐     ┌──────────────────┐
+                    │  PostgreSQL  │     │  Provider System  │
+                    └──────────────┘     │  - Reference      │
+                                         │  - Scraping (ML)  │
+                                         │  - (Extensible)   │
+                                         └──────────────────┘
 ```
 
 ### Components
 
 - **Frontend**: React + Vite SPA with Nginx
 - **Backend**: Spring Boot 3 REST API with JWT authentication
-- **Scraper**: FastAPI service with async scraping and LLM integration
+- **Scraper**: FastAPI service with provider-based product retrieval and LLM integration
 - **Ollama**: Local LLM (qwen2.5:1.5b) for natural language processing
 - **PostgreSQL**: User data and favorites storage
+- **Provider System**: Pluggable product data sources (reference data, web scraping, etc.)
+
+### Provider Architecture
+
+The scraper now uses a **provider-based architecture** for flexible product retrieval:
+
+- **ReferenceProvider**: Curated fallback dataset (20+ product ideas) - always available
+- **ScrapingProvider**: Live MercadoLibre web scraping - real product data
+- **Extensible**: Easy to add affiliate networks, merchant APIs, or other sources
+
+**Key Benefits**:
+- ✅ Resilient: If scraping fails, reference data still provides results
+- ✅ Flexible: Enable/disable providers via configuration
+- ✅ Extensible: Add new providers without changing core logic
+- ✅ Observable: Per-provider metrics and logging
+
+See [Provider Architecture Documentation](docs/architecture/providers.md) for details.
 
 ## ✨ Features
 
@@ -35,7 +55,8 @@ GiftFinder is a production-ready gift recommendation system that uses AI to unde
 - ✅ **Observability**: Structured JSON logging, request tracking, health checks
 - ✅ **Reliability**: Timeouts, error handling, fallbacks, graceful degradation
 - ✅ **DevOps**: Docker Compose orchestration, resource limits, CI/CD pipeline
-- ✅ **Maintainability**: Centralized config, comprehensive tests, detailed docs
+- ✅ **Maintainability**: Centralized config, comprehensive tests (74 tests), detailed docs
+- ✅ **Extensibility**: Provider-based architecture for multiple data sources
 
 ## 🚀 Quick Start
 
@@ -241,6 +262,11 @@ curl http://localhost:8001/health/metrics | jq .
 | `POSTGRES_PORT` | `5432` | PostgreSQL port |
 | `OLLAMA_HOST` | `http://ollama:11434` | Ollama service URL |
 | `OLLAMA_MODEL` | `qwen2.5:1.5b` | LLM model to use |
+| **Provider Configuration** | | |
+| `ENABLED_PROVIDERS` | `reference,scraping` | Comma-separated list of enabled providers |
+| `MAX_CONCURRENT_PROVIDERS` | `3` | Max parallel provider calls |
+| `PROVIDER_TIMEOUT_SECONDS` | `15` | Timeout for provider calls |
+| **Performance & Limits** | | |
 | `MAX_CONCURRENT_SCRAPES` | `3` | Max parallel scraping ops |
 | `LLM_TIMEOUT_SECONDS` | `15` | LLM request timeout |
 | `SCRAPING_TIMEOUT_SECONDS` | `10` | Scraping request timeout |
@@ -248,6 +274,23 @@ curl http://localhost:8001/health/metrics | jq .
 | `MAX_QUERY_LENGTH` | `500` | Max query string length |
 | `RATE_LIMIT_PER_MINUTE` | `30` | Rate limit per IP |
 | `LOG_LEVEL` | `INFO` | Logging level |
+
+### Provider Configuration Examples
+
+```bash
+# Use only reference provider (no web scraping)
+ENABLED_PROVIDERS=reference
+
+# Use only scraping provider (no fallback)
+ENABLED_PROVIDERS=scraping
+
+# Use both providers (default - recommended)
+ENABLED_PROVIDERS=reference,scraping
+
+# Adjust provider performance
+MAX_CONCURRENT_PROVIDERS=3
+PROVIDER_TIMEOUT_SECONDS=15
+```
 
 ### Resource Limits
 
@@ -474,14 +517,102 @@ LOG_LEVEL=DEBUG
 
 - [Audit Report](docs/AUDIT_REPORT.md) - Complete technical audit
 - [Runbook](docs/RUNBOOK.md) - Operational procedures
+- [Provider Architecture](docs/architecture/providers.md) - Provider system design and implementation
 - [API Documentation](http://localhost:8001/docs) - Interactive API docs (when running)
+
+## 🔌 Extending with New Providers
+
+The provider system is designed for easy extension. Here's how to add a new product provider:
+
+### 1. Create Provider Class
+
+```python
+# giftfinder-scraper/app/providers/my_provider.py
+
+from app.providers.base import ProductProvider
+from app.providers.models import Product, ProductQuery, ProviderResult
+
+class MyProvider(ProductProvider):
+    @property
+    def name(self) -> str:
+        return "my_provider"
+    
+    def supports(self, query: ProductQuery) -> bool:
+        # Return True if this provider can handle the query
+        return bool(query.keywords)
+    
+    async def search(self, query: ProductQuery) -> ProviderResult:
+        # Fetch products from your source
+        products = []
+        # ... your implementation here ...
+        
+        return ProviderResult(
+            products=products,
+            meta=ProviderMetadata(
+                providerName=self.name,
+                latencyMs=...,
+                warnings=[]
+            )
+        )
+```
+
+### 2. Register Provider
+
+Add your provider to the registry:
+
+```python
+# giftfinder-scraper/app/providers/registry.py
+
+from app.providers.my_provider import MyProvider
+
+available_providers = {
+    "reference": ReferenceProvider,
+    "scraping": ScrapingProvider,
+    "my_provider": MyProvider,  # Add your provider
+}
+```
+
+### 3. Enable Provider
+
+Update your `.env`:
+
+```bash
+ENABLED_PROVIDERS=reference,scraping,my_provider
+```
+
+### 4. Test Your Provider
+
+```python
+# giftfinder-scraper/tests/test_my_provider.py
+
+import pytest
+from app.providers.my_provider import MyProvider
+
+class TestMyProvider:
+    @pytest.mark.asyncio
+    async def test_search(self):
+        provider = MyProvider()
+        query = ProductQuery(keywords=["test"])
+        result = await provider.search(query)
+        assert len(result.products) >= 0
+```
+
+### Example Providers You Can Add
+
+- **AffiliateProvider**: Fetch from affiliate networks (ShareASale, CJ, Amazon)
+- **APIProvider**: Use official MercadoLibre API instead of scraping
+- **DatabaseProvider**: Query your own product catalog
+- **MLRecommendationProvider**: ML-based personalized recommendations
+- **CachedProvider**: Decorator to add caching to any provider
+
+See [Provider Architecture Documentation](docs/architecture/providers.md) for more details.
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes with tests
-4. Ensure CI passes
+4. Ensure CI passes (74+ tests)
 5. Submit a pull request
 
 ## 📄 License
