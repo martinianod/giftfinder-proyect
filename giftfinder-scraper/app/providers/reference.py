@@ -12,7 +12,9 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from app.providers.base import ProductProvider
-from app.providers.models import Product, ProductQuery, ProviderMetadata, ProviderResult
+from app.providers.models import (Product, ProductQuery, ProviderCapabilities,
+                                  ProviderContext, ProviderMetadata,
+                                  ProviderResult, VendorInfo)
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 class ReferenceProvider(ProductProvider):
     """
     Provider that returns reference/idea products from a curated local dataset.
-    
+
     Features:
     - Always available (no external dependencies)
     - Fast response time
@@ -39,6 +41,20 @@ class ReferenceProvider(ProductProvider):
         """Provider identifier."""
         return "reference"
 
+    @property
+    def capabilities(self) -> ProviderCapabilities:
+        """Provider capabilities."""
+        return ProviderCapabilities(
+            supportsImages=True,
+            supportsPriceFilter=True,
+            supportsLocation=False,
+            supportsStock=False,
+            supportsDeepLink=False,  # Returns search URLs, not direct links
+            supportsCategories=True,
+            supportsRatings=False,
+            supportsShipping=False,
+        )
+
     def _load_data(self) -> None:
         """Load reference data from JSON file."""
         try:
@@ -55,10 +71,10 @@ class ReferenceProvider(ProductProvider):
         """
         Reference provider supports all queries.
         It's a fallback provider that always works.
-        
+
         Args:
             query: Product query
-            
+
         Returns:
             Always True
         """
@@ -67,11 +83,11 @@ class ReferenceProvider(ProductProvider):
     def _matches_keywords(self, product: Dict, keywords: List[str]) -> bool:
         """
         Check if product matches any of the keywords.
-        
+
         Args:
             product: Product data dictionary
             keywords: List of keywords to match
-            
+
         Returns:
             True if product matches any keyword
         """
@@ -108,12 +124,12 @@ class ReferenceProvider(ProductProvider):
     ) -> bool:
         """
         Check if product's price range overlaps with query price range.
-        
+
         Args:
             product: Product data dictionary
             price_min: Minimum price from query
             price_max: Maximum price from query
-            
+
         Returns:
             True if product price range overlaps with query range
         """
@@ -132,32 +148,30 @@ class ReferenceProvider(ProductProvider):
 
         return True
 
-    def _calculate_score(
-        self, product: Dict, query: ProductQuery
-    ) -> float:
+    def _calculate_score(self, product: Dict, query: ProductQuery) -> float:
         """
         Calculate relevance score for a product.
-        
+
         Args:
             product: Product data dictionary
             query: Product query
-            
+
         Returns:
             Score between 0 and 1
         """
         score = 0.0
-        
+
         # Keyword match score (0.5 weight)
         if query.keywords:
             keywords_lower = [k.lower() for k in query.keywords]
             product_keywords = [k.lower() for k in product.get("keywords", [])]
             product_interests = [i.lower() for i in product.get("interests", [])]
-            
+
             matches = 0
             for kw in keywords_lower:
                 if kw in product_keywords or kw in product_interests:
                     matches += 1
-            
+
             if keywords_lower:
                 keyword_score = min(matches / len(keywords_lower), 1.0)
                 score += keyword_score * 0.5
@@ -168,12 +182,12 @@ class ReferenceProvider(ProductProvider):
         if query.recipientProfile.interests:
             interests_lower = [i.lower() for i in query.recipientProfile.interests]
             product_interests = [i.lower() for i in product.get("interests", [])]
-            
+
             matches = 0
             for interest in interests_lower:
                 if interest in product_interests:
                     matches += 1
-            
+
             if interests_lower:
                 interest_score = min(matches / len(interests_lower), 1.0)
                 score += interest_score * 0.3
@@ -185,7 +199,7 @@ class ReferenceProvider(ProductProvider):
             product_price_range = product.get("priceRange", [])
             if product_price_range and len(product_price_range) >= 2:
                 product_avg = (product_price_range[0] + product_price_range[1]) / 2
-                
+
                 if query.priceMin and query.priceMax:
                     query_avg = (query.priceMin + query.priceMax) / 2
                     # Calculate how close product price is to query price
@@ -210,12 +224,12 @@ class ReferenceProvider(ProductProvider):
     ) -> Product:
         """
         Create a Product object from reference data.
-        
+
         Args:
             ref_data: Reference product data
             query: Product query (for tags)
             score: Relevance score
-            
+
         Returns:
             Product object
         """
@@ -240,9 +254,9 @@ class ReferenceProvider(ProductProvider):
             images=[
                 f"https://http2.mlstatic.com/D_NQ_NP_2X_{image_keyword}_placeholder.jpg"
             ],
-            price=price,
+            price=price if price is not None else 0.0,
             currency="ARS",
-            vendor="Sugerencia",
+            vendor=VendorInfo(name="Sugerencia", id=None),
             url=url,
             sourceProvider=self.name,
             categories=[ref_data.get("category", "general")],
@@ -250,13 +264,15 @@ class ReferenceProvider(ProductProvider):
             score=score,
         )
 
-    async def search(self, query: ProductQuery) -> ProviderResult:
+    async def search(
+        self, query: ProductQuery, ctx: Optional[ProviderContext] = None
+    ) -> ProviderResult:
         """
         Search reference products matching the query.
-        
+
         Args:
             query: Product query
-            
+
         Returns:
             ProviderResult with matching products
         """

@@ -199,7 +199,7 @@ async def scrape_search(request: Request, req: SearchRequest) -> ScraperResponse
 
     # Generate keywords from interests or original query
     keywords = interests if interests else [original_query]
-    
+
     # Create ProductQuery for aggregator
     product_query = ProductQuery(
         keywords=keywords,
@@ -239,18 +239,20 @@ async def scrape_search(request: Request, req: SearchRequest) -> ScraperResponse
         # Convert Product objects to ScrapedProductResponse format (backward compatibility)
         results = []
         for product in products:
-            results.append({
-                "id": product.id,
-                "title": product.title,
-                "description": product.description,
-                "price": product.price,
-                "currency": product.currency,
-                "image_url": product.images[0] if product.images else None,
-                "product_url": product.url,
-                "store": product.vendor,
-                "rating": None,
-                "tags": product.tags,
-            })
+            results.append(
+                {
+                    "id": product.id,
+                    "title": product.title,
+                    "description": product.description,
+                    "price": product.price,
+                    "currency": product.currency,
+                    "image_url": product.images[0] if product.images else None,
+                    "product_url": product.url,
+                    "store": product.vendor,
+                    "rating": None,
+                    "tags": product.tags,
+                }
+            )
 
     except Exception as e:
         logger.error(f"Error during product search: {e}")

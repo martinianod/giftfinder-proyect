@@ -6,11 +6,13 @@ This provider fetches live product data from MercadoLibre.
 import logging
 import time
 import uuid
-from typing import List
+from typing import List, Optional
 
 from app.ml_scraper import scrape_mercadolibre_async
 from app.providers.base import ProductProvider
-from app.providers.models import Product, ProductQuery, ProviderMetadata, ProviderResult
+from app.providers.models import (Product, ProductQuery, ProviderCapabilities,
+                                  ProviderContext, ProviderMetadata,
+                                  ProviderResult, VendorInfo)
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 class ScrapingProvider(ProductProvider):
     """
     Provider that scrapes products from MercadoLibre.
-    
+
     Features:
     - Wraps existing scraper logic
     - Returns standardized Product objects
@@ -33,13 +35,27 @@ class ScrapingProvider(ProductProvider):
         """Provider identifier."""
         return "scraping"
 
+    @property
+    def capabilities(self) -> ProviderCapabilities:
+        """Provider capabilities."""
+        return ProviderCapabilities(
+            supportsImages=True,
+            supportsPriceFilter=True,
+            supportsLocation=False,
+            supportsStock=False,
+            supportsDeepLink=True,  # Returns direct product URLs
+            supportsCategories=False,
+            supportsRatings=False,
+            supportsShipping=False,
+        )
+
     def supports(self, query: ProductQuery) -> bool:
         """
         Scraping provider supports queries with keywords.
-        
+
         Args:
             query: Product query
-            
+
         Returns:
             True if query has keywords, False otherwise
         """
@@ -50,11 +66,11 @@ class ScrapingProvider(ProductProvider):
     ) -> Product:
         """
         Convert scraped product dict to standardized Product model.
-        
+
         Args:
             scraped: Scraped product dictionary from ml_scraper
             query: Original query (for tags)
-            
+
         Returns:
             Product object
         """
@@ -68,9 +84,9 @@ class ScrapingProvider(ProductProvider):
             title=scraped.get("title", ""),
             description=None,  # Scraper doesn't extract descriptions
             images=images,
-            price=scraped.get("price"),
+            price=scraped.get("price", 0.0),
             currency=scraped.get("currency", "ARS"),
-            vendor=scraped.get("store", "MercadoLibre"),
+            vendor=VendorInfo(name=scraped.get("store", "MercadoLibre"), id=None),
             url=scraped.get("product_url", ""),
             sourceProvider=self.name,
             categories=[],  # Categories not extracted by scraper
@@ -81,11 +97,11 @@ class ScrapingProvider(ProductProvider):
     def _calculate_basic_score(self, product: Product, query: ProductQuery) -> float:
         """
         Calculate a basic relevance score for a product.
-        
+
         Args:
             product: Product object
             query: Product query
-            
+
         Returns:
             Score between 0 and 1
         """
@@ -112,13 +128,15 @@ class ScrapingProvider(ProductProvider):
 
         return max(0.0, min(score, 1.0))
 
-    async def search(self, query: ProductQuery) -> ProviderResult:
+    async def search(
+        self, query: ProductQuery, ctx: Optional[ProviderContext] = None
+    ) -> ProviderResult:
         """
         Scrape products from MercadoLibre matching the query.
-        
+
         Args:
             query: Product query
-            
+
         Returns:
             ProviderResult with scraped products
         """
@@ -166,11 +184,6 @@ class ScrapingProvider(ProductProvider):
             if query.priceMin or query.priceMax:
                 filtered_products = []
                 for product in products:
-                    if product.price is None:
-                        # Keep products without price
-                        filtered_products.append(product)
-                        continue
-
                     if query.priceMin and product.price < query.priceMin:
                         continue
                     if query.priceMax and product.price > query.priceMax:
