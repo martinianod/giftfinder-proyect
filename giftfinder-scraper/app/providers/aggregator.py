@@ -18,7 +18,7 @@ settings = get_settings()
 class ProductAggregator:
     """
     Aggregates products from multiple providers.
-    
+
     Responsibilities:
     1. Call all enabled providers in parallel
     2. Merge results from multiple providers
@@ -30,19 +30,17 @@ class ProductAggregator:
     def __init__(self):
         """Initialize the product aggregator."""
         self.registry = get_registry()
-        self.max_concurrent_providers = getattr(
-            settings, "max_concurrent_providers", 3
-        )
+        self.max_concurrent_providers = getattr(settings, "max_concurrent_providers", 3)
 
     def _normalize_for_dedup(self, product: Product) -> str:
         """
         Create a normalized string for deduplication.
-        
+
         Uses URL as primary key, falls back to title+vendor+price.
-        
+
         Args:
             product: Product to normalize
-            
+
         Returns:
             Normalized string for deduplication
         """
@@ -62,12 +60,12 @@ class ProductAggregator:
     def _deduplicate(self, products: List[Product]) -> List[Product]:
         """
         Deduplicate products based on normalized keys.
-        
+
         When duplicates are found, keeps the one with highest score.
-        
+
         Args:
             products: List of products to deduplicate
-            
+
         Returns:
             Deduplicated list of products
         """
@@ -95,11 +93,11 @@ class ProductAggregator:
     def _enhance_score(self, product: Product, query: ProductQuery) -> float:
         """
         Calculate or enhance relevance score for a product.
-        
+
         Args:
             product: Product to score
             query: Original query
-            
+
         Returns:
             Score between 0 and 1
         """
@@ -152,11 +150,11 @@ class ProductAggregator:
     ) -> List[Product]:
         """
         Merge, deduplicate, score, and rank products from multiple providers.
-        
+
         Args:
             provider_results: List of results from providers
             query: Original query
-            
+
         Returns:
             Ranked list of products
         """
@@ -200,11 +198,11 @@ class ProductAggregator:
     ) -> ProviderResult:
         """
         Search a single provider with timeout protection.
-        
+
         Args:
             provider: Provider to search
             query: Product query
-            
+
         Returns:
             ProviderResult (may be empty on error)
         """
@@ -263,10 +261,10 @@ class ProductAggregator:
     async def search_products(self, query: ProductQuery) -> List[Product]:
         """
         Search for products across all enabled providers.
-        
+
         Args:
             query: Product query
-            
+
         Returns:
             Merged, deduplicated, and ranked list of products
         """
@@ -312,7 +310,7 @@ _aggregator: ProductAggregator = None
 def get_aggregator() -> ProductAggregator:
     """
     Get the global product aggregator instance (singleton).
-    
+
     Returns:
         ProductAggregator instance
     """

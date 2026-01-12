@@ -17,7 +17,7 @@ settings = get_settings()
 class ProviderRegistry:
     """
     Registry for managing and discovering product providers.
-    
+
     Loads enabled providers from configuration and provides
     access to them.
     """
@@ -30,7 +30,7 @@ class ProviderRegistry:
     def _load_providers(self) -> None:
         """
         Load enabled providers from configuration.
-        
+
         Reads ENABLED_PROVIDERS from settings and instantiates
         the corresponding provider classes.
         """
@@ -69,13 +69,13 @@ class ProviderRegistry:
     def get_provider(self, name: str) -> ProductProvider:
         """
         Get a provider by name.
-        
+
         Args:
             name: Provider name
-            
+
         Returns:
             ProductProvider instance
-            
+
         Raises:
             KeyError: If provider not found
         """
@@ -84,7 +84,7 @@ class ProviderRegistry:
     def get_all_providers(self) -> List[ProductProvider]:
         """
         Get all loaded providers.
-        
+
         Returns:
             List of ProductProvider instances
         """
@@ -93,10 +93,10 @@ class ProviderRegistry:
     def has_provider(self, name: str) -> bool:
         """
         Check if a provider is loaded.
-        
+
         Args:
             name: Provider name
-            
+
         Returns:
             True if provider is loaded, False otherwise
         """
@@ -105,7 +105,7 @@ class ProviderRegistry:
     def get_provider_names(self) -> List[str]:
         """
         Get names of all loaded providers.
-        
+
         Returns:
             List of provider names
         """
@@ -119,7 +119,7 @@ _registry: ProviderRegistry = None
 def get_registry() -> ProviderRegistry:
     """
     Get the global provider registry instance (singleton).
-    
+
     Returns:
         ProviderRegistry instance
     """

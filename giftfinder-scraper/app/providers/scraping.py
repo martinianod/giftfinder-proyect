@@ -10,15 +10,9 @@ from typing import List, Optional
 
 from app.ml_scraper import scrape_mercadolibre_async
 from app.providers.base import ProductProvider
-from app.providers.models import (
-    Product,
-    ProductQuery,
-    ProviderCapabilities,
-    ProviderContext,
-    ProviderMetadata,
-    ProviderResult,
-    VendorInfo,
-)
+from app.providers.models import (Product, ProductQuery, ProviderCapabilities,
+                                  ProviderContext, ProviderMetadata,
+                                  ProviderResult, VendorInfo)
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +20,7 @@ logger = logging.getLogger(__name__)
 class ScrapingProvider(ProductProvider):
     """
     Provider that scrapes products from MercadoLibre.
-    
+
     Features:
     - Wraps existing scraper logic
     - Returns standardized Product objects
@@ -58,10 +52,10 @@ class ScrapingProvider(ProductProvider):
     def supports(self, query: ProductQuery) -> bool:
         """
         Scraping provider supports queries with keywords.
-        
+
         Args:
             query: Product query
-            
+
         Returns:
             True if query has keywords, False otherwise
         """
@@ -72,11 +66,11 @@ class ScrapingProvider(ProductProvider):
     ) -> Product:
         """
         Convert scraped product dict to standardized Product model.
-        
+
         Args:
             scraped: Scraped product dictionary from ml_scraper
             query: Original query (for tags)
-            
+
         Returns:
             Product object
         """
@@ -103,11 +97,11 @@ class ScrapingProvider(ProductProvider):
     def _calculate_basic_score(self, product: Product, query: ProductQuery) -> float:
         """
         Calculate a basic relevance score for a product.
-        
+
         Args:
             product: Product object
             query: Product query
-            
+
         Returns:
             Score between 0 and 1
         """
@@ -135,16 +129,14 @@ class ScrapingProvider(ProductProvider):
         return max(0.0, min(score, 1.0))
 
     async def search(
-        self,
-        query: ProductQuery,
-        ctx: Optional[ProviderContext] = None
+        self, query: ProductQuery, ctx: Optional[ProviderContext] = None
     ) -> ProviderResult:
         """
         Scrape products from MercadoLibre matching the query.
-        
+
         Args:
             query: Product query
-            
+
         Returns:
             ProviderResult with scraped products
         """
