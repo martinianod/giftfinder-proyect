@@ -67,6 +67,18 @@ class Settings(BaseSettings):
         description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     )
 
+    # Provider Configuration
+    enabled_providers: str = Field(
+        default="reference,scraping",
+        description="Comma-separated list of enabled providers",
+    )
+    max_concurrent_providers: int = Field(
+        default=3, description="Maximum concurrent provider calls"
+    )
+    provider_timeout_seconds: int = Field(
+        default=15, description="Timeout for provider calls in seconds"
+    )
+
     @field_validator("ollama_host")
     @classmethod
     def validate_ollama_host(cls, v: str) -> str:

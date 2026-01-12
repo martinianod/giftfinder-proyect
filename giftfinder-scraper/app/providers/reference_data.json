@@ -1,0 +1,184 @@
+{
+  "products": [
+    {
+      "id": "ref-tech-001",
+      "title": "Auriculares Inalámbricos Bluetooth",
+      "description": "Auriculares bluetooth con cancelación de ruido, ideales para música y gaming",
+      "category": "tecnología",
+      "keywords": ["auriculares", "bluetooth", "audio", "tecnología", "música"],
+      "priceRange": [5000, 25000],
+      "interests": ["tecnología", "música", "gaming"]
+    },
+    {
+      "id": "ref-tech-002",
+      "title": "Smart Watch Deportivo",
+      "description": "Reloj inteligente con monitor de actividad física y notificaciones",
+      "category": "tecnología",
+      "keywords": ["smartwatch", "reloj", "deportes", "fitness", "tecnología"],
+      "priceRange": [15000, 50000],
+      "interests": ["tecnología", "deportes", "fitness", "salud"]
+    },
+    {
+      "id": "ref-tech-003",
+      "title": "Teclado Mecánico RGB Gaming",
+      "description": "Teclado mecánico con iluminación RGB para gaming y programación",
+      "category": "tecnología",
+      "keywords": ["teclado", "mecánico", "gaming", "rgb", "computadora"],
+      "priceRange": [10000, 40000],
+      "interests": ["tecnología", "gaming", "programación"]
+    },
+    {
+      "id": "ref-book-001",
+      "title": "Libro de Ciencia Ficción",
+      "description": "Novela de ciencia ficción bestseller",
+      "category": "libros",
+      "keywords": ["libro", "lectura", "ciencia ficción", "novela"],
+      "priceRange": [2000, 8000],
+      "interests": ["lectura", "ciencia ficción", "cultura"]
+    },
+    {
+      "id": "ref-book-002",
+      "title": "Libro de Desarrollo Personal",
+      "description": "Guía práctica de desarrollo personal y motivación",
+      "category": "libros",
+      "keywords": ["libro", "desarrollo personal", "motivación", "autoayuda"],
+      "priceRange": [3000, 10000],
+      "interests": ["lectura", "desarrollo personal", "motivación"]
+    },
+    {
+      "id": "ref-home-001",
+      "title": "Set de Tazas de Café",
+      "description": "Set de tazas elegantes para café o té",
+      "category": "hogar",
+      "keywords": ["tazas", "café", "té", "cocina", "hogar"],
+      "priceRange": [3000, 12000],
+      "interests": ["café", "té", "cocina", "hogar"]
+    },
+    {
+      "id": "ref-home-002",
+      "title": "Difusor de Aromas",
+      "description": "Difusor de aceites esenciales con luz LED",
+      "category": "hogar",
+      "keywords": ["difusor", "aromas", "aceites", "relax", "hogar"],
+      "priceRange": [4000, 15000],
+      "interests": ["relax", "bienestar", "hogar", "decoración"]
+    },
+    {
+      "id": "ref-sport-001",
+      "title": "Botella Térmica Deportiva",
+      "description": "Botella de acero inoxidable para mantener temperatura",
+      "category": "deportes",
+      "keywords": ["botella", "térmica", "deportes", "agua", "fitness"],
+      "priceRange": [2500, 10000],
+      "interests": ["deportes", "fitness", "salud", "gimnasio"]
+    },
+    {
+      "id": "ref-sport-002",
+      "title": "Colchoneta de Yoga",
+      "description": "Colchoneta antideslizante para yoga y ejercicio",
+      "category": "deportes",
+      "keywords": ["yoga", "colchoneta", "ejercicio", "fitness", "deportes"],
+      "priceRange": [3000, 12000],
+      "interests": ["yoga", "fitness", "deportes", "bienestar"]
+    },
+    {
+      "id": "ref-fashion-001",
+      "title": "Mochila Urbana",
+      "description": "Mochila moderna con compartimento para laptop",
+      "category": "moda",
+      "keywords": ["mochila", "bolso", "laptop", "urbano", "viaje"],
+      "priceRange": [8000, 30000],
+      "interests": ["moda", "viaje", "trabajo", "tecnología"]
+    },
+    {
+      "id": "ref-fashion-002",
+      "title": "Billetera de Cuero",
+      "description": "Billetera elegante de cuero genuino",
+      "category": "moda",
+      "keywords": ["billetera", "cuero", "accesorio", "moda"],
+      "priceRange": [5000, 20000],
+      "interests": ["moda", "accesorios", "elegante"]
+    },
+    {
+      "id": "ref-game-001",
+      "title": "Juego de Mesa Estratégico",
+      "description": "Juego de mesa para grupos, estrategia y diversión",
+      "category": "juegos",
+      "keywords": ["juego", "mesa", "estrategia", "grupo", "diversión"],
+      "priceRange": [4000, 15000],
+      "interests": ["juegos", "diversión", "social", "estrategia"]
+    },
+    {
+      "id": "ref-game-002",
+      "title": "Puzzle 1000 Piezas",
+      "description": "Rompecabezas de 1000 piezas con imagen artística",
+      "category": "juegos",
+      "keywords": ["puzzle", "rompecabezas", "hobby", "arte"],
+      "priceRange": [2000, 8000],
+      "interests": ["hobby", "arte", "relax", "paciencia"]
+    },
+    {
+      "id": "ref-beauty-001",
+      "title": "Set de Cuidado Facial",
+      "description": "Kit completo de productos para cuidado de la piel",
+      "category": "belleza",
+      "keywords": ["cuidado", "facial", "piel", "belleza", "cosmética"],
+      "priceRange": [6000, 25000],
+      "interests": ["belleza", "cuidado personal", "cosmética"]
+    },
+    {
+      "id": "ref-beauty-002",
+      "title": "Perfume Unisex",
+      "description": "Fragancia fresca y moderna para cualquier ocasión",
+      "category": "belleza",
+      "keywords": ["perfume", "fragancia", "aroma", "belleza"],
+      "priceRange": [10000, 50000],
+      "interests": ["belleza", "moda", "cuidado personal"]
+    },
+    {
+      "id": "ref-food-001",
+      "title": "Set de Chocolates Premium",
+      "description": "Caja de chocolates artesanales de alta calidad",
+      "category": "alimentos",
+      "keywords": ["chocolate", "dulces", "gourmet", "regalo"],
+      "priceRange": [3000, 15000],
+      "interests": ["chocolate", "dulces", "gourmet", "comida"]
+    },
+    {
+      "id": "ref-food-002",
+      "title": "Set de Café Especial",
+      "description": "Selección de cafés de especialidad de diferentes orígenes",
+      "category": "alimentos",
+      "keywords": ["café", "gourmet", "bebida", "especialidad"],
+      "priceRange": [4000, 20000],
+      "interests": ["café", "gourmet", "bebidas"]
+    },
+    {
+      "id": "ref-art-001",
+      "title": "Set de Acuarelas Profesional",
+      "description": "Kit completo de acuarelas con pinceles y papel",
+      "category": "arte",
+      "keywords": ["acuarela", "pintura", "arte", "creativo", "hobby"],
+      "priceRange": [5000, 25000],
+      "interests": ["arte", "pintura", "creativo", "hobby"]
+    },
+    {
+      "id": "ref-art-002",
+      "title": "Set de Marcadores para Dibujo",
+      "description": "Marcadores de alta calidad para ilustración y diseño",
+      "category": "arte",
+      "keywords": ["marcadores", "dibujo", "arte", "ilustración", "diseño"],
+      "priceRange": [4000, 20000],
+      "interests": ["arte", "dibujo", "diseño", "creativo"]
+    },
+    {
+      "id": "ref-music-001",
+      "title": "Ukelele para Principiantes",
+      "description": "Ukelele de calidad con funda y afinador incluido",
+      "category": "música",
+      "keywords": ["ukelele", "instrumento", "música", "hobby"],
+      "priceRange": [8000, 30000],
+      "interests": ["música", "instrumento", "hobby", "creativo"]
+    }
+  ]
+}
