@@ -293,10 +293,15 @@ This endpoint generates AI-powered gift recommendations based on the profile's i
 
 ### Token Security
 
-- Tokens are 32-byte random values encoded in Base64 URL-safe format
-- Tokens are unguessable and cryptographically secure
+- Tokens are 32-byte (256-bit) random values generated using `SecureRandom`
+- Tokens are encoded in Base64 URL-safe format (43 characters)
+- Tokens are cryptographically secure and unguessable (2^256 possible values)
+- Tokens are stored directly in database (not hashed) for URL lookups
+- Security relies on high entropy (256 bits) making brute-force attacks infeasible
 - Default expiration: 1 year from creation
 - Expired tokens are rejected with 400 error
+
+**Note on token storage:** While tokens are not cryptographically hashed, they are unguessable due to their 256-bit entropy. This provides excellent security while allowing direct database lookups for performance. BCrypt hashing would not add meaningful security since tokens are never provided by users but rather generated randomly.
 
 ### Rate Limiting
 

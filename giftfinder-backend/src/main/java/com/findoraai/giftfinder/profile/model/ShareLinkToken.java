@@ -25,7 +25,7 @@ public class ShareLinkToken {
     private RecipientProfile profile;
 
     @Column(nullable = false, unique = true, length = 100)
-    private String hashedToken;
+    private String hashedToken; // Stores 256-bit random token (Base64 encoded, unguessable)
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

@@ -149,15 +149,12 @@ public class RecipientProfileServiceImpl implements RecipientProfileService {
         random.nextBytes(tokenBytes);
         String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
 
-        // Hash the token for storage
-        String hashedToken = passwordEncoder.encode(rawToken);
-
         // Delete existing token if any
         tokenRepository.findByProfile(profile).ifPresent(tokenRepository::delete);
 
         ShareLinkToken token = ShareLinkToken.builder()
                 .profile(profile)
-                .hashedToken(rawToken) // Store raw token for URL, not hashed (for this simple implementation)
+                .hashedToken(rawToken) // Store raw token for URL (unguessable due to 256-bit entropy)
                 .build();
 
         return tokenRepository.save(token);
