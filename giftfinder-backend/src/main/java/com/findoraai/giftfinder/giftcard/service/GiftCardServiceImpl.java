@@ -66,12 +66,21 @@ public class GiftCardServiceImpl implements GiftCardService {
         log.info("Created gift card {} for {} from user {}", saved.getId(), 
                 request.getRecipientEmail(), sender.getId());
 
-        // If delivery date is null or today, send immediately
-        if (request.getDeliveryDate() == null || !request.getDeliveryDate().isAfter(LocalDate.now())) {
+        // Send immediately if no delivery date is specified or if delivery date is today or in the past
+        if (shouldSendImmediately(request.getDeliveryDate())) {
             sendGiftCard(code);
         }
 
         return GiftCardResponse.fromEntity(saved);
+    }
+
+    /**
+     * Determines if a gift card should be sent immediately
+     * @param deliveryDate The requested delivery date
+     * @return true if the gift card should be sent now
+     */
+    private boolean shouldSendImmediately(LocalDate deliveryDate) {
+        return deliveryDate == null || !deliveryDate.isAfter(LocalDate.now());
     }
 
     @Override

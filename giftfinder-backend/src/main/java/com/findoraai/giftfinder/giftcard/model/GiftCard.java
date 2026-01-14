@@ -21,9 +21,19 @@ public class GiftCard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Plain text gift card code for user display and email delivery.
+     * This code is shown to the sender upon creation and sent to the recipient via email.
+     * Stored in plain text as it needs to be retrievable for display purposes.
+     */
     @Column(unique = true, nullable = false)
     private String code;
 
+    /**
+     * BCrypt hashed version of the gift card code.
+     * Used for additional security validation during redemption.
+     * Provides defense-in-depth in case of database breach.
+     */
     @Column(nullable = false)
     private String hashedCode;
 

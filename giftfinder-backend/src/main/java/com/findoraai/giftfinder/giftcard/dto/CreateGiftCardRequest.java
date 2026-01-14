@@ -30,7 +30,6 @@ public class CreateGiftCardRequest {
     @Email(message = "Invalid email format")
     private String recipientEmail;
 
-    @Future(message = "Delivery date must be in the future")
     private LocalDate deliveryDate;
 
     @Positive(message = "Expiry months must be positive")

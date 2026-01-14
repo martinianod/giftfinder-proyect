@@ -36,6 +36,11 @@ public class Wallet {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    /**
+     * Version field for optimistic locking.
+     * Prevents concurrent wallet balance updates by ensuring only one transaction
+     * can modify the wallet at a time. Managed automatically by JPA.
+     */
     @Version
     private Long version;
 
