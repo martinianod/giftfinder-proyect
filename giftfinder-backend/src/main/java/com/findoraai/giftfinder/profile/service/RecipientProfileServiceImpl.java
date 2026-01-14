@@ -7,7 +7,6 @@ import com.findoraai.giftfinder.profile.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ public class RecipientProfileServiceImpl implements RecipientProfileService {
     private final RecipientProfileRepository profileRepository;
     private final ShareLinkTokenRepository tokenRepository;
     private final WishlistItemRepository wishlistRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Value("${app.base-url}")
     private String appBaseUrl;
