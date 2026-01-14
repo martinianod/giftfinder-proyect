@@ -54,6 +54,7 @@ See [Provider Architecture Documentation](docs/architecture/providers.md) for de
 - 🔍 **Multi-Provider Product Search**: Reference data + live web scraping
 - 👤 **User Authentication**: JWT-based secure authentication
 - ⭐ **Favorites Management**: Save and organize favorite gift ideas
+- 💳 **Gift Cards**: Create, send, and redeem internal gift cards with wallet integration
 
 ### Proactive Automation Features (NEW! 🎉)
 
@@ -62,7 +63,19 @@ See [Provider Architecture Documentation](docs/architecture/providers.md) for de
 - 🔔 **Configurable Notifications**: Customize reminder days and notification preferences
 - 📊 **Admin Dashboard**: Monitor scheduled jobs and notification queue
 
-See [Proactive Automation Documentation](docs/PROACTIVE_AUTOMATION.md) for detailed information.
+### Gift Card System (NEW! 🎉)
+
+- 💳 **Gift Card Creation**: Buy and send gift cards to recipients with custom messages
+- 🔐 **Secure Codes**: Unguessable codes with BCrypt hashing for security
+- 📧 **Email Delivery**: Automatic or scheduled delivery via email
+- 💰 **Wallet Integration**: Redeem gift cards into an internal wallet balance
+- 🔄 **Idempotent Redemption**: Prevent double redemption with atomic operations
+- 📝 **Transaction Ledger**: Complete audit trail of all wallet operations
+- ⚡ **Status Lifecycle**: CREATED → SENT → REDEEMED / EXPIRED / CANCELLED
+- ⏰ **Expiration Policy**: Default 12 months, configurable
+- 👨‍💼 **Admin Controls**: Cancel or expire gift cards as needed
+
+See [Gift Card API Documentation](docs/GIFT_CARD_API.md) for detailed information.
 
 ### Production-Ready Improvements
 
@@ -534,7 +547,9 @@ LOG_LEVEL=DEBUG
 - [Audit Report](docs/AUDIT_REPORT.md) - Complete technical audit
 - [Runbook](docs/RUNBOOK.md) - Operational procedures
 - [Provider Architecture](docs/architecture/providers.md) - Provider system design and implementation
-- [Proactive Automation](docs/PROACTIVE_AUTOMATION.md) - Event reminders and price drop tracking (NEW!)
+- [Proactive Automation](docs/PROACTIVE_AUTOMATION.md) - Event reminders and price drop tracking
+- [Gift Card API](docs/GIFT_CARD_API.md) - Gift card system API documentation (NEW!)
+- [Gift Card Migration](docs/GIFT_CARD_MIGRATION.md) - Database migration guide for gift cards (NEW!)
 - [API Documentation](http://localhost:8001/docs) - Interactive API docs (when running)
 
 ## 🔌 Extending with New Providers

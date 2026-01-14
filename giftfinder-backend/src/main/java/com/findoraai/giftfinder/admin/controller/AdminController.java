@@ -2,6 +2,7 @@ package com.findoraai.giftfinder.admin.controller;
 
 import com.findoraai.giftfinder.admin.dto.JobStatusResponse;
 import com.findoraai.giftfinder.admin.dto.ReminderQueueResponse;
+import com.findoraai.giftfinder.giftcard.service.GiftCardService;
 import com.findoraai.giftfinder.notifications.model.Reminder;
 import com.findoraai.giftfinder.notifications.repository.ReminderRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final ReminderRepository reminderRepository;
+    private final GiftCardService giftCardService;
 
     @GetMapping("/job-status")
     public ResponseEntity<Map<String, String>> getJobStatus() {
@@ -100,5 +102,25 @@ public class AdminController {
         );
 
         return ResponseEntity.ok(stats);
+    }
+
+    /**
+     * Cancel a gift card (admin only)
+     * POST /api/admin/giftcards/{id}/cancel
+     */
+    @PostMapping("/giftcards/{id}/cancel")
+    public ResponseEntity<Void> cancelGiftCard(@PathVariable Long id) {
+        giftCardService.cancelGiftCard(id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Expire a gift card (admin only)
+     * POST /api/admin/giftcards/{id}/expire
+     */
+    @PostMapping("/giftcards/{id}/expire")
+    public ResponseEntity<Void> expireGiftCard(@PathVariable Long id) {
+        giftCardService.expireGiftCard(id);
+        return ResponseEntity.ok().build();
     }
 }
