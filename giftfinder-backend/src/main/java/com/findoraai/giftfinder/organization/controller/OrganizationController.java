@@ -1,5 +1,6 @@
 package com.findoraai.giftfinder.organization.controller;
 
+import com.findoraai.giftfinder.auth.model.User;
 import com.findoraai.giftfinder.organization.dto.*;
 import com.findoraai.giftfinder.organization.service.OrganizationService;
 import com.findoraai.giftfinder.notifications.model.Recipient;
@@ -7,8 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,42 +23,38 @@ public class OrganizationController {
 
     @PostMapping
     public ResponseEntity<OrganizationResponse> createOrganization(
-            @Valid @RequestBody OrganizationRequest request) {
-        Long userId = getCurrentUserId();
-        OrganizationResponse response = organizationService.createOrganization(request, userId);
+            @Valid @RequestBody OrganizationRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = (User) userDetails;
+        OrganizationResponse response = organizationService.createOrganization(request, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/{id}/members")
     public ResponseEntity<OrganizationMemberResponse> addMember(
             @PathVariable Long id,
-            @Valid @RequestBody AddMemberRequest request) {
-        Long userId = getCurrentUserId();
-        OrganizationMemberResponse response = organizationService.addMember(id, request, userId);
+            @Valid @RequestBody AddMemberRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = (User) userDetails;
+        OrganizationMemberResponse response = organizationService.addMember(id, request, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}/recipients")
-    public ResponseEntity<List<Recipient>> getOrganizationRecipients(@PathVariable Long id) {
-        Long userId = getCurrentUserId();
-        List<Recipient> recipients = organizationService.getOrganizationRecipients(id, userId);
+    public ResponseEntity<List<Recipient>> getOrganizationRecipients(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = (User) userDetails;
+        List<Recipient> recipients = organizationService.getOrganizationRecipients(id, user.getId());
         return ResponseEntity.ok(recipients);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrganizationResponse> getOrganization(@PathVariable Long id) {
-        Long userId = getCurrentUserId();
-        OrganizationResponse response = organizationService.getOrganization(id, userId);
+    public ResponseEntity<OrganizationResponse> getOrganization(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = (User) userDetails;
+        OrganizationResponse response = organizationService.getOrganization(id, user.getId());
         return ResponseEntity.ok(response);
-    }
-
-    private Long getCurrentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new SecurityException("User not authenticated");
-        }
-        // Assuming the principal contains user ID or email
-        // This might need to be adjusted based on your JWT implementation
-        return 1L; // Placeholder - should be extracted from JWT claims
     }
 }

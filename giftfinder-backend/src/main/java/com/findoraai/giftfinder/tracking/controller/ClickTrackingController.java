@@ -1,5 +1,6 @@
 package com.findoraai.giftfinder.tracking.controller;
 
+import com.findoraai.giftfinder.auth.model.User;
 import com.findoraai.giftfinder.tracking.dto.ClickAnalyticsResponse;
 import com.findoraai.giftfinder.tracking.dto.ClickResponse;
 import com.findoraai.giftfinder.tracking.dto.CreateClickRequest;
@@ -9,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -23,8 +24,11 @@ public class ClickTrackingController {
     private final ClickTrackingService clickTrackingService;
 
     @PostMapping("/clicks")
-    public ResponseEntity<ClickResponse> createClick(@Valid @RequestBody CreateClickRequest request) {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<ClickResponse> createClick(
+            @Valid @RequestBody CreateClickRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        // Allow both authenticated and anonymous users
+        Long userId = userDetails != null ? ((User) userDetails).getId() : null;
         ClickResponse response = clickTrackingService.createClick(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -43,13 +47,5 @@ public class ClickTrackingController {
             @RequestParam(defaultValue = "30") int days) {
         ClickAnalyticsResponse analytics = clickTrackingService.getAnalytics(days);
         return ResponseEntity.ok(analytics);
-    }
-
-    private Long getCurrentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            return null; // Allow anonymous clicks
-        }
-        return 1L; // Placeholder - should be extracted from JWT claims
     }
 }
