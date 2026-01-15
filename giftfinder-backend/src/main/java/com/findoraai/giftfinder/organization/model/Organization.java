@@ -1,41 +1,32 @@
-package com.findoraai.giftfinder.notifications.model;
+package com.findoraai.giftfinder.organization.model;
 
-import com.findoraai.giftfinder.auth.model.User;
-import com.findoraai.giftfinder.organization.model.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "recipients")
+@Table(name = "organizations")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Recipient {
+public class Organization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_id")
-    private Organization organization;
-
-    @Column(nullable = false)
+    @Column(nullable = false, length = 200)
     private String name;
 
     @Column(length = 1000)
     private String description;
 
-    private LocalDate birthday;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal giftBudget;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

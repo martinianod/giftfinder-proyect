@@ -77,6 +77,18 @@ See [Provider Architecture Documentation](docs/architecture/providers.md) for de
 
 See [Gift Card API Documentation](docs/GIFT_CARD_API.md) for detailed information.
 
+### B2B and Monetization (NEW! 🎉)
+
+- 🏢 **Organizations**: B2B organization management with role-based access control
+- 👥 **Team Management**: OWNER, ADMIN, MEMBER roles for organization hierarchy
+- 🎯 **Organization Recipients**: Centrally manage employee gift recipients and birthdays
+- 💰 **Budget Tracking**: Optional gift budgets per organization
+- 📊 **Click Tracking**: Record outbound product clicks for analytics and attribution
+- 🔗 **Affiliate Ready**: Extensible affiliate provider contract for monetization
+- 📈 **Campaign Attribution**: UTM parameters and tracking tags for A/B testing
+
+See [B2B Implementation Guide](docs/B2B_IMPLEMENTATION.md) for detailed information.
+
 ### Production-Ready Improvements
 
 - ✅ **Security**: Input validation, sanitization, SSRF protection, rate limiting
@@ -548,8 +560,12 @@ LOG_LEVEL=DEBUG
 - [Runbook](docs/RUNBOOK.md) - Operational procedures
 - [Provider Architecture](docs/architecture/providers.md) - Provider system design and implementation
 - [Proactive Automation](docs/PROACTIVE_AUTOMATION.md) - Event reminders and price drop tracking
-- [Gift Card API](docs/GIFT_CARD_API.md) - Gift card system API documentation (NEW!)
-- [Gift Card Migration](docs/GIFT_CARD_MIGRATION.md) - Database migration guide for gift cards (NEW!)
+- [Gift Card API](docs/GIFT_CARD_API.md) - Gift card system API documentation
+- [Gift Card Migration](docs/GIFT_CARD_MIGRATION.md) - Database migration guide for gift cards
+- [B2B Implementation](docs/B2B_IMPLEMENTATION.md) - Organizations and monetization (NEW!)
+- [Organizations API](docs/b2b/ORGANIZATIONS_API.md) - B2B organization management endpoints (NEW!)
+- [Click Tracking](docs/b2b/CLICK_TRACKING.md) - Indirect monetization via click tracking (NEW!)
+- [Affiliate Integration](docs/b2b/AFFILIATE_INTEGRATION.md) - Guide for integrating affiliate networks (NEW!)
 - [API Documentation](http://localhost:8001/docs) - Interactive API docs (when running)
 
 ## 🔌 Extending with New Providers
