@@ -51,6 +51,15 @@ public class SavedProduct {
 
     private String store;
 
+    @Column(length = 2000)
+    private String affiliateUrl;
+
+    @Column(length = 100)
+    private String campaignId;
+
+    @Column(length = 500)
+    private String trackingTags;
+
     @Column(nullable = false)
     private Boolean priceTrackingEnabled;
 
