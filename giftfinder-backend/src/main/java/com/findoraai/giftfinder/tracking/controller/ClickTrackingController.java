@@ -27,7 +27,8 @@ public class ClickTrackingController {
     public ResponseEntity<ClickResponse> createClick(
             @Valid @RequestBody CreateClickRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        // Allow both authenticated and anonymous users
+        // Support both authenticated and anonymous users for click tracking
+        // userDetails will be null for anonymous/unauthenticated requests
         Long userId = userDetails != null ? ((User) userDetails).getId() : null;
         ClickResponse response = clickTrackingService.createClick(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

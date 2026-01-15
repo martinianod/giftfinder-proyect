@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +23,7 @@ public class OrganizationController {
     @PostMapping
     public ResponseEntity<OrganizationResponse> createOrganization(
             @Valid @RequestBody OrganizationRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User user = (User) userDetails;
+            @AuthenticationPrincipal User user) {
         OrganizationResponse response = organizationService.createOrganization(request, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -34,8 +32,7 @@ public class OrganizationController {
     public ResponseEntity<OrganizationMemberResponse> addMember(
             @PathVariable Long id,
             @Valid @RequestBody AddMemberRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User user = (User) userDetails;
+            @AuthenticationPrincipal User user) {
         OrganizationMemberResponse response = organizationService.addMember(id, request, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -43,8 +40,7 @@ public class OrganizationController {
     @GetMapping("/{id}/recipients")
     public ResponseEntity<List<Recipient>> getOrganizationRecipients(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User user = (User) userDetails;
+            @AuthenticationPrincipal User user) {
         List<Recipient> recipients = organizationService.getOrganizationRecipients(id, user.getId());
         return ResponseEntity.ok(recipients);
     }
@@ -52,8 +48,7 @@ public class OrganizationController {
     @GetMapping("/{id}")
     public ResponseEntity<OrganizationResponse> getOrganization(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User user = (User) userDetails;
+            @AuthenticationPrincipal User user) {
         OrganizationResponse response = organizationService.getOrganization(id, user.getId());
         return ResponseEntity.ok(response);
     }
