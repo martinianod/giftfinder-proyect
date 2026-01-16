@@ -146,7 +146,7 @@ fi
 echo ""
 echo "Step 7: Testing Validation"
 echo "--------------------------"
-INVALID_DATA="{\"name\":\"\",\"email\":\"notanemail\",\"password\":\"123\"}"
+INVALID_DATA="{\"name\":\"\",\"email\":\"notanemail\",\"password\":\"short\"}"
 
 if run_test "Invalid data (should fail)" "POST" "$BACKEND_URL/api/auth/signup" "$INVALID_DATA" "400"; then
     echo -e "${GREEN}✓ Validation correctly enforced${NC}"

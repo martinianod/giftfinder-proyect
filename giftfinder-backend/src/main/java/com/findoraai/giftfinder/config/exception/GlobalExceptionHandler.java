@@ -126,10 +126,19 @@ public class GlobalExceptionHandler {
         String requestId = getOrGenerateRequestId(request);
         log.error("Data integrity violation - requestId: {}, message: {}", requestId, ex.getMessage());
         
-        // Check if it's a unique constraint violation
-        String message = ex.getMessage();
-        if (message != null && message.toLowerCase().contains("duplicate") 
-                && message.toLowerCase().contains("email")) {
+        // Check if it's a unique constraint violation for email
+        // More robust checking using root cause and PostgreSQL error codes
+        Throwable rootCause = ex.getRootCause();
+        String message = ex.getMessage() != null ? ex.getMessage().toLowerCase() : "";
+        String rootMessage = rootCause != null && rootCause.getMessage() != null ? 
+                rootCause.getMessage().toLowerCase() : "";
+        
+        // PostgreSQL unique constraint violations typically contain "duplicate key" or constraint name
+        boolean isDuplicateEmail = (message.contains("duplicate") || rootMessage.contains("duplicate")) &&
+                                   (message.contains("email") || rootMessage.contains("email") ||
+                                    message.contains("users_email_key") || rootMessage.contains("users_email_key"));
+        
+        if (isDuplicateEmail) {
             return handleDuplicateEmail(
                 new DuplicateEmailException("Email already registered"), 
                 request);

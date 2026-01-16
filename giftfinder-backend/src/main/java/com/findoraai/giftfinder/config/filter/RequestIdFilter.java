@@ -11,6 +11,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Filter that adds a unique request ID to each HTTP request for correlation across logs.
+ * Uses HIGHEST_PRECEDENCE to ensure request IDs are available to all subsequent filters
+ * and logged in all downstream processing including error handlers.
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestIdFilter implements Filter {
