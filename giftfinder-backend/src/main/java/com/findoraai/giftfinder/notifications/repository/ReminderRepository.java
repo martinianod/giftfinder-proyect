@@ -21,9 +21,22 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
     @Query("SELECT r FROM Reminder r WHERE r.scheduledDate <= :date AND r.status = :status")
     List<Reminder> findDueReminders(@Param("date") LocalDate date, @Param("status") Reminder.ReminderStatus status);
     
+    @Query("SELECT r FROM Reminder r WHERE r.user = :user AND r.importantDate = :importantDate AND r.daysBefore = :daysBefore AND r.scheduledDate = :scheduledDate")
     Optional<Reminder> findByUserAndImportantDateAndDaysBeforeAndScheduledDate(
-        User user, ImportantDate importantDate, Integer daysBefore, LocalDate scheduledDate);
+        @Param("user") User user, 
+        @Param("importantDate") ImportantDate importantDate, 
+        @Param("daysBefore") Integer daysBefore, 
+        @Param("scheduledDate") LocalDate scheduledDate);
     
-    boolean existsByUserAndImportantDateAndDaysBeforeAndScheduledDate(
-        User user, ImportantDate importantDate, Integer daysBefore, LocalDate scheduledDate);
+    @Query("SELECT COUNT(r) FROM Reminder r WHERE r.user = :user AND r.importantDate = :importantDate AND r.daysBefore = :daysBefore AND r.scheduledDate = :scheduledDate")
+    long countByUserAndImportantDateAndDaysBeforeAndScheduledDate(
+        @Param("user") User user, 
+        @Param("importantDate") ImportantDate importantDate, 
+        @Param("daysBefore") Integer daysBefore, 
+        @Param("scheduledDate") LocalDate scheduledDate);
+    
+    default boolean existsByUserAndImportantDateAndDaysBeforeAndScheduledDate(
+            User user, ImportantDate importantDate, Integer daysBefore, LocalDate scheduledDate) {
+        return countByUserAndImportantDateAndDaysBeforeAndScheduledDate(user, importantDate, daysBefore, scheduledDate) > 0;
+    }
 }

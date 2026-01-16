@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #ddd;
+        }
+        .gift-card {
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        .code {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .message {
+            background-color: #fff8dc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f1f1f1;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-radius: 0 0 5px 5px;
+        }
+        .expiry {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎁 You've Received a Gift Card!</h1>
+        </div>
+        <div class="content">
+            <p>Great news! <strong>{{senderName}}</strong> has sent you a gift card for GiftFinder!</p>
+            
+            <div class="gift-card">
+                <div class="amount">{{currency}} {{amount}}</div>
+                <p>Your Gift Card Balance</p>
+            </div>
+
+            {{#message}}
+            <div class="message">
+                <strong>Personal Message:</strong><br>
+                "{{message}}"
+            </div>
+            {{/message}}
+
+            <h3>Your Gift Card Code:</h3>
+            <div class="code">{{code}}</div>
+            
+            <p>To redeem your gift card:</p>
+            <ol>
+                <li>Log in to your GiftFinder account</li>
+                <li>Go to your wallet or gift cards section</li>
+                <li>Enter the code above to redeem</li>
+                <li>Start shopping with your new balance!</li>
+            </ol>
+            
+            <a href="{{appUrl}}" class="button">Redeem Gift Card</a>
+            
+            <p class="expiry">⏰ This gift card expires on <strong>{{expiryDate}}</strong>. Be sure to use it before then!</p>
+        </div>
+        <div class="footer">
+            <p>This is a gift card from GiftFinder. The balance can be used to find and purchase gifts.</p>
+            <p>Questions? Contact us at support@giftfinder.com</p>
+        </div>
+    </div>
+</body>
+</html>

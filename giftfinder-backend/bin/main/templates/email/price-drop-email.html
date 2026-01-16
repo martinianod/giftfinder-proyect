@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #FF5722;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        .price-box {
+            background-color: #fff;
+            border: 2px solid #FF5722;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 18px;
+        }
+        .new-price {
+            color: #FF5722;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .savings {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .footer {
+            background-color: #f1f1f1;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-radius: 0 0 5px 5px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #FF5722;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .product-image {
+            max-width: 200px;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Price Drop Alert!</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{userName}}!</h2>
+            <p>Great news! A product you've been watching has dropped in price:</p>
+            
+            {{#productImageUrl}}
+            <div style="text-align: center; margin: 15px 0;">
+                <img src="{{productImageUrl}}" alt="{{productTitle}}" class="product-image">
+            </div>
+            {{/productImageUrl}}
+            
+            <h3>{{productTitle}}</h3>
+            
+            <div class="price-box">
+                <p><span class="old-price">{{oldPrice}} {{currency}}</span></p>
+                <p><span class="new-price">{{newPrice}} {{currency}}</span></p>
+                <p class="savings">Save {{dropPercentage}}% ({{savingsAmount}} {{currency}})</p>
+            </div>
+            
+            <p>This is a great time to purchase!</p>
+            
+            <a href="{{productUrl}}" class="button">View Product</a>
+        </div>
+        <div class="footer">
+            <p>You're receiving this email because you enabled price drop alerts in GiftFinder.</p>
+            <p>To manage your notification preferences, visit your account settings.</p>
+        </div>
+    </div>
+</body>
+</html>
