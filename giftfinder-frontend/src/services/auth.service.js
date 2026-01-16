@@ -2,7 +2,7 @@ import { api } from './api'
 
 export const authService = {
   async login(username, password) {
-    const data = await api.post('/api/auth/login', { username, password })
+    const data = await api.post('/api/auth/login', { email: username, password })
     if (data.token) {
       localStorage.setItem('auth-token', data.token)
     }
@@ -10,7 +10,7 @@ export const authService = {
   },
 
   async signup(email, username, password) {
-    const data = await api.post('/api/auth/signup', { email, username, password })
+    const data = await api.post('/api/auth/signup', { email, name: username, password })
     if (data.token) {
       localStorage.setItem('auth-token', data.token)
     }

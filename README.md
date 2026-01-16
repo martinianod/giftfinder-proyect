@@ -124,10 +124,27 @@ This will start all services with proper health checks and dependencies.
 docker-compose exec ollama ollama pull qwen2.5:1.5b
 ```
 
-### Step 5: Access Services
+### Step 5: Verify Setup (Run Smoke Tests)
+
+```bash
+# Run automated smoke tests
+./scripts/smoke.sh
+```
+
+This will verify:
+- ✅ Backend health endpoint
+- ✅ Frontend accessibility  
+- ✅ User signup and login
+- ✅ Error handling (409, 401, 400)
+- ✅ Request correlation IDs
+
+**For detailed local setup instructions**, see [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md)
+
+### Step 6: Access Services
 
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:8080
+- **Backend Health**: http://localhost:8080/actuator/health
 - **Scraper API**: http://localhost:8001
 - **Scraper Health**: http://localhost:8001/health/ready
 - **Scraper Metrics**: http://localhost:8001/health/metrics

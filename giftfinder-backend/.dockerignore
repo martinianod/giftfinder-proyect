@@ -1,0 +1,10 @@
+.gradle
+build/
+!build/libs/*.jar
+.idea
+*.class
+*.log
+.git
+.gitignore
+README.md
+.DS_Store
