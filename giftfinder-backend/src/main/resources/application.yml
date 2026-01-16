@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/giftfinder
-    username: giftfinder
-    password: giftfinder
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/giftfinder}
+    username: ${SPRING_DATASOURCE_USERNAME:giftfinder_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:CHANGE_ME_IN_PRODUCTION}
   jpa:
     hibernate:
       ddl-auto: update
@@ -37,16 +37,19 @@ openai:
 
 # Para que el front en 5173 pueda pegarle
 cors:
-  allowed-origins: "http://localhost:5173"
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
 
 jwt:
   secret: super-secret-key
   expiration-ms: 86400000
 
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId}] %-5level %logger{36} - %msg%n"
   level:
     org.springframework.web.reactive.function.client: DEBUG
     com.findoraai.giftfinder.notifications: INFO
+    com.findoraai.giftfinder.auth: INFO
 
 scraper:
   base-url: ${SCRAPER_BASE_URL:http://localhost:8001}
